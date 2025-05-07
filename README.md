@@ -2,7 +2,7 @@
 
 DentalCeph is a web application for cephalometric analysis, inspired by Windows Paint, designed for dental and radiographic image annotation and measurement.
 
-<img src="assets/dentalceph-demo.png" alt="DentalCeph" width="400"/>
+<img src="public/dental-ceph.png" alt="DentalCeph" width="300"/>
 
 ## Main Features
 - Open radiographic images (PNG, JPG, JPEG, PDF)
