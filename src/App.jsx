@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import Toolbar from './components/Toolbar';
 import CanvasArea from './components/CanvasArea';
+import SplashScreen from './components/SplashScreen';
 
 // Main container for the app
 const AppContainer = styled.div`
@@ -46,6 +47,14 @@ function App() {
 
   // Canvas ref for clearing annotations
   const canvasAreaRef = React.useRef();
+
+  const [showSplash, setShowSplash] = useState(true);
+
+  React.useEffect(() => {
+    setShowSplash(true);
+    const timer = setTimeout(() => setShowSplash(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Handlers
   const handleOpen = () => {
@@ -110,50 +119,53 @@ function App() {
   };
 
   return (
-    <AppContainer>
-      <ToolbarWrapper>
-        <Toolbar
-          activeTool={activeTool}
-          onToolChange={setActiveTool}
-          color={color}
-          onColorChange={setColor}
-          thickness={thickness}
-          onThicknessChange={setThickness}
-          fontSize={fontSize}
-          onFontSizeChange={setFontSize}
-          onOpen={handleOpen}
-          onSave={handleSave}
-          onDownload={handleDownload}
-          onDelete={handleDelete}
-          onUndo={handleUndo}
-          onRedo={handleRedo}
-          onRotate={handleRotate}
-          onZoomChange={handleZoomChange}
-          zoom={zoom}
-        />
-        <input
-          type="file"
-          accept=".png,.jpg,.jpeg,.pdf"
-          style={{ display: 'none' }}
-          ref={fileInputRef}
-          onChange={handleFileChange}
-        />
-      </ToolbarWrapper>
-      <CanvasAreaWrapper>
-        <CanvasArea
-          ref={canvasAreaRef}
-          image={image}
-          pdf={pdf}
-          zoom={zoom}
-          rotation={rotation}
-          activeTool={activeTool}
-          color={color}
-          thickness={thickness}
-          fontSize={fontSize}
-          onSaveImage={handleSaveImage}
-        />
-      </CanvasAreaWrapper>
-    </AppContainer>
+    <>
+      {showSplash && <SplashScreen />}
+      <AppContainer style={{ filter: showSplash ? 'blur(2px)' : 'none', pointerEvents: showSplash ? 'none' : 'auto' }}>
+        <ToolbarWrapper>
+          <Toolbar
+            activeTool={activeTool}
+            onToolChange={setActiveTool}
+            color={color}
+            onColorChange={setColor}
+            thickness={thickness}
+            onThicknessChange={setThickness}
+            fontSize={fontSize}
+            onFontSizeChange={setFontSize}
+            onOpen={handleOpen}
+            onSave={handleSave}
+            onDownload={handleDownload}
+            onDelete={handleDelete}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            onRotate={handleRotate}
+            onZoomChange={handleZoomChange}
+            zoom={zoom}
+          />
+          <input
+            type="file"
+            accept=".png,.jpg,.jpeg,.pdf"
+            style={{ display: 'none' }}
+            ref={fileInputRef}
+            onChange={handleFileChange}
+          />
+        </ToolbarWrapper>
+        <CanvasAreaWrapper>
+          <CanvasArea
+            ref={canvasAreaRef}
+            image={image}
+            pdf={pdf}
+            zoom={zoom}
+            rotation={rotation}
+            activeTool={activeTool}
+            color={color}
+            thickness={thickness}
+            fontSize={fontSize}
+            onSaveImage={handleSaveImage}
+          />
+        </CanvasAreaWrapper>
+      </AppContainer>
+    </>
   );
 }
 
