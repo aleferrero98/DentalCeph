@@ -24,6 +24,7 @@ const ToolbarContainer = styled.div`
 // Group for related tools
 const ToolGroup = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 0.5rem;
   border-right: 2px solid #eee;
@@ -77,6 +78,7 @@ const ToolLabel = styled.span`
   color: #222c36;
   margin-top: 0.2rem;
   text-align: center;
+  width: 100%;
 `;
 
 // Example color palette
@@ -105,6 +107,15 @@ const CurrentColorCircle = styled.div`
   justify-content: center;
 `;
 
+// Fila de botones dentro de cada grupo
+const ToolButtonsRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
 function Toolbar({
   activeTool, onToolChange,
   color, onColorChange,
@@ -124,130 +135,144 @@ function Toolbar({
     <ToolbarContainer>
       {/* Menu & Zoom */}
       <ToolGroup>
-        <ToolButton title="Menu">
-          <FontAwesomeIcon icon={faEllipsisV} />
-        </ToolButton>
-        <select
-          aria-label="Zoom"
-          value={zoom}
-          onChange={e => onZoomChange(Number(e.target.value))}
-          style={{ marginLeft: 8, fontSize: '1rem', borderRadius: 6 }}
-        >
-          {[50, 75, 100, 125, 150, 200].map(z => (
-            <option key={z} value={z}>{z}%</option>
-          ))}
-        </select>
+        <ToolButtonsRow>
+          <ToolButton title="Menu">
+            <FontAwesomeIcon icon={faEllipsisV} />
+          </ToolButton>
+          <select
+            aria-label="Zoom"
+            value={zoom}
+            onChange={e => onZoomChange(Number(e.target.value))}
+            style={{ marginLeft: 8, fontSize: '1rem', borderRadius: 6 }}
+          >
+            {[50, 75, 100, 125, 150, 200].map(z => (
+              <option key={z} value={z}>{z}%</option>
+            ))}
+          </select>
+        </ToolButtonsRow>
       </ToolGroup>
 
       {/* File actions */}
       <ToolGroup>
-        <ToolButton title="Open image" onClick={onOpen}>
-          <FontAwesomeIcon icon={faFolderOpen} />
-        </ToolButton>
-        <ToolButton title="Save" onClick={onSave}>
-          <FontAwesomeIcon icon={faSave} />
-        </ToolButton>
-        <ToolButton title="Download" onClick={onDownload}>
-          <FontAwesomeIcon icon={faDownload} />
-        </ToolButton>
-        <ToolButton title="Delete all" onClick={onDelete}>
-          <FontAwesomeIcon icon={faTrash} />
-        </ToolButton>
+        <ToolButtonsRow>
+          <ToolButton title="Open image" onClick={onOpen}>
+            <FontAwesomeIcon icon={faFolderOpen} />
+          </ToolButton>
+          <ToolButton title="Save" onClick={onSave}>
+            <FontAwesomeIcon icon={faSave} />
+          </ToolButton>
+          <ToolButton title="Download" onClick={onDownload}>
+            <FontAwesomeIcon icon={faDownload} />
+          </ToolButton>
+          <ToolButton title="Delete all" onClick={onDelete}>
+            <FontAwesomeIcon icon={faTrash} />
+          </ToolButton>
+        </ToolButtonsRow>
       </ToolGroup>
 
       {/* Tools */}
       <ToolGroup>
-        <ToolButton title="Mark point" active={activeTool==='point'} onClick={()=>onToolChange('point')}>
-          <FontAwesomeIcon icon={faDotCircle} />
-        </ToolButton>
-        <ToolButton title="Draw line" active={activeTool==='line'} onClick={()=>onToolChange('line')}>
-          <FontAwesomeIcon icon={faSlash} />
-        </ToolButton>
-        <ToolButton title="Angle" active={activeTool==='angle'} onClick={()=>onToolChange('angle')}>
-          <FontAwesomeIcon icon={faRulerCombined} />
-        </ToolButton>
-        <ToolButton title="Jarabak %" active={activeTool==='jarabak'} onClick={()=>onToolChange('jarabak')}>
-          <FontAwesomeIcon icon={faPercent} />
-        </ToolButton>
-        <ToolLabel>Tools</ToolLabel>
+        <ToolButtonsRow>
+          <ToolButton title="Mark point" active={activeTool==='point'} onClick={()=>onToolChange('point')}>
+            <FontAwesomeIcon icon={faDotCircle} />
+          </ToolButton>
+          <ToolButton title="Draw line" active={activeTool==='line'} onClick={()=>onToolChange('line')}>
+            <FontAwesomeIcon icon={faSlash} />
+          </ToolButton>
+          <ToolButton title="Angle" active={activeTool==='angle'} onClick={()=>onToolChange('angle')}>
+            <FontAwesomeIcon icon={faRulerCombined} />
+          </ToolButton>
+          <ToolButton title="Jarabak %" active={activeTool==='jarabak'} onClick={()=>onToolChange('jarabak')}>
+            <FontAwesomeIcon icon={faPercent} />
+          </ToolButton>
+        </ToolButtonsRow>
+        <ToolLabel>Herramientas</ToolLabel>
       </ToolGroup>
 
       {/* Thickness */}
       <ToolGroup>
-        {THICKNESS.map(t => (
-          <ToolButton
-            key={t}
-            title={`Thickness ${t}`}
-            active={thickness===t}
-            onClick={()=>onThicknessChange(t)}
-            style={{padding: 0, width: 32, height: 32, justifyContent: 'center'}}
-          >
-            <div style={{width: 24, height: t, background: '#222c36', borderRadius: 4}} />
-          </ToolButton>
-        ))}
-        <ToolLabel>Thickness</ToolLabel>
+        <ToolButtonsRow>
+          {THICKNESS.map(t => (
+            <ToolButton
+              key={t}
+              title={`Thickness ${t}`}
+              active={thickness===t}
+              onClick={()=>onThicknessChange(t)}
+              style={{padding: 0, width: 32, height: 32, justifyContent: 'center'}}
+            >
+              <div style={{width: 24, height: t, background: '#222c36', borderRadius: 4}} />
+            </ToolButton>
+          ))}
+        </ToolButtonsRow>
+        <ToolLabel>Grosor</ToolLabel>
       </ToolGroup>
 
       {/* Color palette */}
       <ToolGroup>
-        {/* Círculo grande para color actual */}
-        <CurrentColorCircle color={color} title="Current color" />
-        {COLORS.map(c => (
-          <ColorDot
-            key={c}
-            color={c}
-            selected={color===c}
-            onClick={()=>onColorChange(c)}
-            title={c}
-          />
-        ))}
-        {/* Botón para color personalizado con icono y estilo de ToolButton */}
-        <ToolButton
-          title="Custom color"
-          style={{ padding: 0, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={handleCustomColor}
-        >
-          <FontAwesomeIcon icon={faPalette} style={{ color: '#888', fontSize: '1.2rem' }} />
-          <input
-            type="color"
-            ref={colorInputRef}
-            style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
-            onChange={handleColorChange}
-            tabIndex={-1}
-          />
-        </ToolButton>
-        <ToolLabel>Colors</ToolLabel>
+        <ToolButtonsRow>
+          {/* Círculo grande para color actual */}
+          <CurrentColorCircle color={color} title="Current color" />
+          {COLORS.map(c => (
+            <ColorDot
+              key={c}
+              color={c}
+              selected={color===c}
+              onClick={()=>onColorChange(c)}
+              title={c}
+            />
+          ))}
+          {/* Botón para color personalizado con icono y estilo de ToolButton */}
+          <ToolButton
+            title="Custom color"
+            style={{ padding: 0, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onClick={handleCustomColor}
+          >
+            <FontAwesomeIcon icon={faPalette} style={{ color: '#888', fontSize: '1.2rem' }} />
+            <input
+              type="color"
+              ref={colorInputRef}
+              style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+              onChange={handleColorChange}
+              tabIndex={-1}
+            />
+          </ToolButton>
+        </ToolButtonsRow>
+        <ToolLabel>Colores</ToolLabel>
       </ToolGroup>
 
       {/* Text tool */}
       <ToolGroup>
-        <ToolButton title="Text" active={activeTool==='text'} onClick={()=>onToolChange('text')}>
-          <FontAwesomeIcon icon={faFont} />
-        </ToolButton>
-        <select
-          aria-label="Font size"
-          value={fontSize}
-          onChange={e => onFontSizeChange(Number(e.target.value))}
-          style={{ marginLeft: 8, fontSize: '1rem', borderRadius: 6 }}
-        >
-          {FONT_SIZES.map(size => (
-            <option key={size} value={size}>{size}px</option>
-          ))}
-        </select>
-        <ToolLabel>Text</ToolLabel>
+        <ToolButtonsRow>
+          <ToolButton title="Text" active={activeTool==='text'} onClick={()=>onToolChange('text')}>
+            <FontAwesomeIcon icon={faFont} />
+          </ToolButton>
+          <select
+            aria-label="Font size"
+            value={fontSize}
+            onChange={e => onFontSizeChange(Number(e.target.value))}
+            style={{ marginLeft: 8, fontSize: '1rem', borderRadius: 6 }}
+          >
+            {FONT_SIZES.map(size => (
+              <option key={size} value={size}>{size}px</option>
+            ))}
+          </select>
+        </ToolButtonsRow>
+        <ToolLabel>Texto</ToolLabel>
       </ToolGroup>
 
       {/* Undo/Redo/Rotate */}
       <ToolGroup>
-        <ToolButton title="Undo" onClick={onUndo}>
-          <FontAwesomeIcon icon={faUndo} />
-        </ToolButton>
-        <ToolButton title="Redo" onClick={onRedo}>
-          <FontAwesomeIcon icon={faRedo} />
-        </ToolButton>
-        <ToolButton title="Rotate" onClick={onRotate}>
-          <FontAwesomeIcon icon={faSyncAlt} />
-        </ToolButton>
+        <ToolButtonsRow>
+          <ToolButton title="Undo" onClick={onUndo}>
+            <FontAwesomeIcon icon={faUndo} />
+          </ToolButton>
+          <ToolButton title="Redo" onClick={onRedo}>
+            <FontAwesomeIcon icon={faRedo} />
+          </ToolButton>
+          <ToolButton title="Rotate" onClick={onRotate}>
+            <FontAwesomeIcon icon={faSyncAlt} />
+          </ToolButton>
+        </ToolButtonsRow>
       </ToolGroup>
     </ToolbarContainer>
   );

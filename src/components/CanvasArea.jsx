@@ -701,8 +701,8 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     >
       {!image && !pdf && (
         <HelpText>
-          Open an image (PNG, JPG, JPEG, PDF) to start annotating.<br/>
-          Use the toolbar above to select tools and colors.
+          🖼 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG, JPG o PDF! 🚀<br/>
+          🛠️ Usa la barra de herramientas superior para seleccionar colores 🎨 y herramientas ✏️
         </HelpText>
       )}
       {image && (
