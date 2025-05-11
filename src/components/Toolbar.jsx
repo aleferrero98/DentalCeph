@@ -29,10 +29,14 @@ const ToolGroup = styled.div`
   gap: 0.5rem;
   border-right: 2px solid #eee;
   padding-right: 1.2rem;
-  margin-right: 1.2rem;
+  &:first-child {
+    padding-left: 0;
+  }
+  &:not(:first-child) {
+    padding-left: 1.2rem;
+  }
   &:last-child {
     border-right: none;
-    margin-right: 0;
     padding-right: 0;
   }
 `;
