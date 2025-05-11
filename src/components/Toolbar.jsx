@@ -152,7 +152,7 @@ function Toolbar({
         </ToolButtonsRow>
       </ToolGroup>
 
-      {/* File actions */}
+      {/* File actions + Undo/Redo/Rotate */}
       <ToolGroup>
         <ToolButtonsRow>
           <ToolButton title="Open image" onClick={onOpen}>
@@ -166,6 +166,15 @@ function Toolbar({
           </ToolButton>
           <ToolButton title="Delete all" onClick={onDelete}>
             <FontAwesomeIcon icon={faTrash} />
+          </ToolButton>
+          <ToolButton title="Undo" onClick={onUndo}>
+            <FontAwesomeIcon icon={faUndo} />
+          </ToolButton>
+          <ToolButton title="Redo" onClick={onRedo}>
+            <FontAwesomeIcon icon={faRedo} />
+          </ToolButton>
+          <ToolButton title="Rotate" onClick={onRotate}>
+            <FontAwesomeIcon icon={faSyncAlt} />
           </ToolButton>
         </ToolButtonsRow>
       </ToolGroup>
@@ -258,21 +267,6 @@ function Toolbar({
           </select>
         </ToolButtonsRow>
         <ToolLabel>Texto</ToolLabel>
-      </ToolGroup>
-
-      {/* Undo/Redo/Rotate */}
-      <ToolGroup>
-        <ToolButtonsRow>
-          <ToolButton title="Undo" onClick={onUndo}>
-            <FontAwesomeIcon icon={faUndo} />
-          </ToolButton>
-          <ToolButton title="Redo" onClick={onRedo}>
-            <FontAwesomeIcon icon={faRedo} />
-          </ToolButton>
-          <ToolButton title="Rotate" onClick={onRotate}>
-            <FontAwesomeIcon icon={faSyncAlt} />
-          </ToolButton>
-        </ToolButtonsRow>
       </ToolGroup>
     </ToolbarContainer>
   );
