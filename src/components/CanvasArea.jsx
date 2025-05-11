@@ -166,7 +166,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     const { x, y } = getRelativeCoords(e);
     if (activeTool === 'point') {
       const pt = { x, y, color, thickness, erasable: true };
-      setPoints((prev) => [...prev, pt]);
+      addPoint(pt);
       if (onAddPoint) onAddPoint(pt);
     } else if (activeTool === 'line') {
       setDrawingLine({ x1: x, y1: y, x2: x, y2: y, color, thickness, erasable: true });
@@ -249,9 +249,9 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
         const dotObtuso = bisObtuso.x * normVm.x + bisObtuso.y * normVm.y;
         // El mayor producto escalar indica la bisectriz más cercana
         if (dotAgudo >= dotObtuso) {
-          setAngles(prev => [...prev, { l1idx: angleSelection[0], l2idx: angleSelection[1], angle: angleAgudo, intersection, arcPoints: arcAgudo, color, erasable: true }]);
+          addAngle({ l1idx: angleSelection[0], l2idx: angleSelection[1], angle: angleAgudo, intersection, arcPoints: arcAgudo, color, erasable: true });
         } else {
-          setAngles(prev => [...prev, { l1idx: angleSelection[0], l2idx: angleSelection[1], angle: angleObtuso, intersection, arcPoints: arcObtuso, color, erasable: true }]);
+          addAngle({ l1idx: angleSelection[0], l2idx: angleSelection[1], angle: angleObtuso, intersection, arcPoints: arcObtuso, color, erasable: true });
         }
         setAngleSelection([]);
         setAngleResult(null);
@@ -290,20 +290,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     if (activeTool === 'jarabak' && drawingLine) {
       const { x, y } = getRelativeCoords(e);
       const newLine = { ...drawingLine, x2: x, y2: y, color, erasable: true };
-      setJarabakLines((prev) => {
-        const updated = [...prev, newLine];
-        if (updated.length === 2) {
-          // Calcular el cociente de longitudes
-          const len1 = Math.hypot(updated[0].x2 - updated[0].x1, updated[0].y2 - updated[0].y1);
-          const len2 = Math.hypot(updated[1].x2 - updated[1].x1, updated[1].y2 - updated[1].y1);
-          if (len2 !== 0) {
-            const ratio = len1 / len2;
-            setJarabakResult({ ratio, lines: updated });
-          }
-          return updated; // No limpiar aquí, solo al cerrar el modal
-        }
-        return updated;
-      });
+      addJarabakLine(newLine);
       setDrawingLine(null);
     } else if (drawingLine) {
       const { x, y } = getRelativeCoords(e);
@@ -330,8 +317,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
         },
         erasable: true
       };
-      setLines((prev) => [...prev, newLine]);
-      if (onAddLine) onAddLine(newLine);
+      addLine(newLine);
       setDrawingLine(null);
     } else if (movingTextIdx !== null) {
       setMovingTextIdx(null);
@@ -346,7 +332,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       setInputText('');
       return;
     }
-    setTexts(prev => [...prev, {
+    addText({
       x: inputPos.x,
       y: inputPos.y,
       text: inputText,
@@ -354,7 +340,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       fontSize,
       fontFamily,
       erasable: true
-    }]);
+    });
     setInputPos(null);
     setInputText('');
   };
@@ -648,6 +634,79 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     backupAnnotations,
     exportAs
   }), [image, points, lines, texts, imgDims]);
+
+  const [undoStack, setUndoStack] = useState([]); // {type, element}
+  const [redoStack, setRedoStack] = useState([]); // {type, element}
+
+  const addPoint = (pt) => {
+    setPoints(prev => [...prev, pt]);
+    setUndoStack(prev => [...prev, { type: 'point', element: pt }]);
+    setRedoStack([]);
+  };
+  const addLine = (line) => {
+    setLines(prev => [...prev, line]);
+    setUndoStack(prev => [...prev, { type: 'line', element: line }]);
+    setRedoStack([]);
+  };
+  const addText = (text) => {
+    setTexts(prev => [...prev, text]);
+    setUndoStack(prev => [...prev, { type: 'text', element: text }]);
+    setRedoStack([]);
+  };
+  const addAngle = (angle) => {
+    setAngles(prev => [...prev, angle]);
+    setUndoStack(prev => [...prev, { type: 'angle', element: angle }]);
+    setRedoStack([]);
+  };
+  const addJarabakLine = (jl) => {
+    setJarabakLines(prev => [...prev, jl]);
+    setUndoStack(prev => [...prev, { type: 'jarabak', element: jl }]);
+    setRedoStack([]);
+  };
+
+  const handleUndo = () => {
+    if (undoStack.length === 0) return;
+    const last = undoStack[undoStack.length - 1];
+    setUndoStack(undoStack.slice(0, -1));
+    setRedoStack([...redoStack, last]);
+    if (last.type === 'point') {
+      setPoints(points.filter(e => e !== last.element));
+    } else if (last.type === 'line') {
+      setLines(lines.filter(e => e !== last.element));
+    } else if (last.type === 'text') {
+      setTexts(texts.filter(e => e !== last.element));
+    } else if (last.type === 'angle') {
+      setAngles(angles.filter(e => e !== last.element));
+    } else if (last.type === 'jarabak') {
+      setJarabakLines(jarabakLines.filter(e => e !== last.element));
+    }
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length === 0) return;
+    const last = redoStack[redoStack.length - 1];
+    setRedoStack(redoStack.slice(0, -1));
+    setUndoStack([...undoStack, last]);
+    if (last.type === 'point') {
+      setPoints([...points, last.element]);
+    } else if (last.type === 'line') {
+      setLines([...lines, last.element]);
+    } else if (last.type === 'text') {
+      setTexts([...texts, last.element]);
+    } else if (last.type === 'angle') {
+      setAngles([...angles, last.element]);
+    } else if (last.type === 'jarabak') {
+      setJarabakLines([...jarabakLines, last.element]);
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    clearAll,
+    backupAnnotations,
+    exportAs,
+    handleUndo,
+    handleRedo
+  }), [clearAll, backupAnnotations, exportAs, handleUndo, handleRedo]);
 
   return (
     <CanvasWrapper
