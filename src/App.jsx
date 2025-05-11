@@ -89,8 +89,8 @@ function App() {
   };
 
   const handleSave = () => {
-    if (canvasAreaRef.current && canvasAreaRef.current.saveAsBase) {
-      canvasAreaRef.current.saveAsBase();
+    if (canvasAreaRef.current && canvasAreaRef.current.backupAnnotations) {
+      canvasAreaRef.current.backupAnnotations();
     }
   };
   const handleDownload = async () => {

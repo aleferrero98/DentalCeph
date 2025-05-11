@@ -91,9 +91,9 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
   // Store points, lines, and texts
-  const [points, setPoints] = useState([]); // {x, y, color, thickness}
-  const [lines, setLines] = useState([]);   // {x1, y1, x2, y2, color, thickness}
-  const [texts, setTexts] = useState([]);   // {x, y, text, color, fontSize, fontFamily}
+  const [points, setPoints] = useState([]); // {x, y, color, thickness, erasable}
+  const [lines, setLines] = useState([]);   // {x1, y1, x2, y2, color, thickness, erasable}
+  const [texts, setTexts] = useState([]);   // {x, y, text, color, fontSize, fontFamily, erasable}
   // For drawing lines
   const [drawingLine, setDrawingLine] = useState(null); // {x1, y1, x2, y2}
   // For adding/editing text
@@ -106,10 +106,10 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
   // Estado para selección de ángulo
   const [angleSelection, setAngleSelection] = useState([]); // indices de las líneas seleccionadas
   const [angleResult, setAngleResult] = useState(null); // resultado temporal
-  const [angles, setAngles] = useState([]); // ángulos calculados y persistentes
+  const [angles, setAngles] = useState([]); // { ... , erasable }
   const [hoveredLine, setHoveredLine] = useState(null); // índice de la recta bajo el cursor
   // Estado para Jarabak
-  const [jarabakLines, setJarabakLines] = useState([]);
+  const [jarabakLines, setJarabakLines] = useState([]); // { ... , erasable }
   // Estado para mostrar el modal de Jarabak
   const [jarabakResult, setJarabakResult] = useState(null);
 
@@ -165,11 +165,11 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     if (e.button !== 0) return; // Only left click
     const { x, y } = getRelativeCoords(e);
     if (activeTool === 'point') {
-      const pt = { x, y, color, thickness };
+      const pt = { x, y, color, thickness, erasable: true };
       setPoints((prev) => [...prev, pt]);
       if (onAddPoint) onAddPoint(pt);
     } else if (activeTool === 'line') {
-      setDrawingLine({ x1: x, y1: y, x2: x, y2: y, color, thickness });
+      setDrawingLine({ x1: x, y1: y, x2: x, y2: y, color, thickness, erasable: true });
     } else if (activeTool === 'text') {
       // Check if clicking on existing text for moving
       const idx = texts.findIndex(t => {
@@ -249,16 +249,16 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
         const dotObtuso = bisObtuso.x * normVm.x + bisObtuso.y * normVm.y;
         // El mayor producto escalar indica la bisectriz más cercana
         if (dotAgudo >= dotObtuso) {
-          setAngles(prev => [...prev, { l1idx: angleSelection[0], l2idx: angleSelection[1], angle: angleAgudo, intersection, arcPoints: arcAgudo, color }]);
+          setAngles(prev => [...prev, { l1idx: angleSelection[0], l2idx: angleSelection[1], angle: angleAgudo, intersection, arcPoints: arcAgudo, color, erasable: true }]);
         } else {
-          setAngles(prev => [...prev, { l1idx: angleSelection[0], l2idx: angleSelection[1], angle: angleObtuso, intersection, arcPoints: arcObtuso, color }]);
+          setAngles(prev => [...prev, { l1idx: angleSelection[0], l2idx: angleSelection[1], angle: angleObtuso, intersection, arcPoints: arcObtuso, color, erasable: true }]);
         }
         setAngleSelection([]);
         setAngleResult(null);
       }
     } else if (activeTool === 'jarabak') {
       if (!drawingLine) {
-        setDrawingLine({ x1: x, y1: y, x2: x, y2: y, color, thickness });
+        setDrawingLine({ x1: x, y1: y, x2: x, y2: y, color, thickness, erasable: true });
       }
     }
   };
@@ -289,7 +289,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
   const handleMouseUp = (e) => {
     if (activeTool === 'jarabak' && drawingLine) {
       const { x, y } = getRelativeCoords(e);
-      const newLine = { ...drawingLine, x2: x, y2: y, color };
+      const newLine = { ...drawingLine, x2: x, y2: y, color, erasable: true };
       setJarabakLines((prev) => {
         const updated = [...prev, newLine];
         if (updated.length === 2) {
@@ -327,7 +327,8 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
           slope: m,
           intercept: b,
           general: { A, B, C }
-        }
+        },
+        erasable: true
       };
       setLines((prev) => [...prev, newLine]);
       if (onAddLine) onAddLine(newLine);
@@ -351,7 +352,8 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       text: inputText,
       color,
       fontSize,
-      fontFamily
+      fontFamily,
+      erasable: true
     }]);
     setInputPos(null);
     setInputText('');
@@ -507,62 +509,6 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     };
   };
 
-  // Save all annotations as permanent (merge with image)
-  const saveAsBase = async () => {
-    if (!image) return;
-    // Create a temp canvas
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = imgDims.width;
-    tempCanvas.height = imgDims.height;
-    const ctx = tempCanvas.getContext('2d');
-    // Draw the base image
-    const img = new window.Image();
-    img.src = image;
-    await new Promise(res => { img.onload = res; });
-    ctx.drawImage(img, 0, 0, imgDims.width, imgDims.height);
-    // Draw all lines
-    lines.forEach(l => {
-      ctx.save();
-      ctx.strokeStyle = l.color;
-      ctx.lineWidth = l.thickness;
-      ctx.beginPath();
-      ctx.moveTo(l.x1, l.y1);
-      ctx.lineTo(l.x2, l.y2);
-      ctx.stroke();
-      ctx.restore();
-    });
-    // Draw all points
-    points.forEach(pt => {
-      ctx.save();
-      ctx.fillStyle = pt.color;
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, pt.thickness * 1.2, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.restore();
-    });
-    // Draw all texts
-    texts.forEach(t => {
-      ctx.save();
-      ctx.font = `${t.fontSize || 18}px ${t.fontFamily || 'Arial'}`;
-      ctx.fillStyle = t.color || '#222';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(t.text, t.x, t.y);
-      ctx.restore();
-    });
-    // Get new image as dataURL
-    const merged = tempCanvas.toDataURL('image/png');
-    setPoints([]);
-    setLines([]);
-    setTexts([]);
-    if (typeof onImageLoad === 'function') {
-      const fakeEvent = { target: { naturalWidth: imgDims.width, naturalHeight: imgDims.height } };
-      onImageLoad(fakeEvent);
-    }
-    if (typeof onSaveImage === 'function') {
-      onSaveImage(merged);
-    }
-  };
-
   // Export as PNG/JPG/JPEG/PDF (original size, no margins)
   const exportAs = async (format = 'png') => {
     if (!image) return;
@@ -664,30 +610,42 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
   // Al cerrar el modal, eliminar las líneas de Jarabak
   const handleCloseJarabakModal = () => {
     if (jarabakResult && jarabakResult.lines) {
-      setJarabakLines([]);
+      setJarabakLines(prev => prev.filter(l => !l.erasable));
     }
     setJarabakResult(null);
   };
 
   // Limpiar jarabakLines y resultado al cambiar de modo o imagen
   useEffect(() => {
-    setJarabakLines([]);
+    setJarabakLines(prev => prev.filter(l => !l.erasable));
     setJarabakResult(null);
   }, [activeTool, image, pdf]);
 
-  // Limpiar jarabakLines también en clearAll
+  // Al guardar: marcar todos los elementos como no borrables
+  const backupAnnotations = () => {
+    setPoints(prev => prev.map(pt => ({ ...pt, erasable: false })));
+    setLines(prev => prev.map(l => ({ ...l, erasable: false })));
+    setTexts(prev => prev.map(t => ({ ...t, erasable: false })));
+    setAngles(prev => prev.map(a => ({ ...a, erasable: false })));
+    setJarabakLines(prev => prev.map(jl => ({ ...jl, erasable: false })));
+  };
+
+  // Al borrar todo: eliminar solo los elementos borrables
+  const clearAll = () => {
+    setPoints(prev => prev.filter(pt => !pt.erasable));
+    setLines(prev => prev.filter(l => !l.erasable));
+    setTexts(prev => prev.filter(t => !t.erasable));
+    setAngles(prev => prev.filter(a => !a.erasable));
+    setJarabakLines(prev => prev.filter(jl => !jl.erasable));
+    setAngleSelection([]);
+    setAngleResult(null);
+    setJarabakResult(null);
+  };
+
+  // useImperativeHandle para exponer las funciones
   useImperativeHandle(ref, () => ({
-    clearAll: () => {
-      setPoints([]);
-      setLines([]);
-      setTexts([]);
-      setAngleSelection([]);
-      setAngleResult(null);
-      setAngles([]);
-      setJarabakLines([]);
-      setJarabakResult(null);
-    },
-    saveAsBase,
+    clearAll,
+    backupAnnotations,
     exportAs
   }), [image, points, lines, texts, imgDims]);
 
@@ -701,7 +659,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     >
       {!image && !pdf && (
         <HelpText>
-          🖼 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG, JPG o PDF! 🚀<br/>
+          🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG, JPG o PDF! 🚀<br/>
           🛠️ Usa la barra de herramientas superior para seleccionar colores 🎨 y herramientas ✏️
         </HelpText>
       )}
