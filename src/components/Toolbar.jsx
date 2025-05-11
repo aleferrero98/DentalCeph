@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFolderOpen, faSave, faDownload, faTrash, faUndo, faRedo, faSyncAlt,
-  faDotCircle, faSlash, faRulerCombined, faPercent, faFont, faPalette, faBars, faEllipsisV
+  faDotCircle, faSlash, faRulerCombined, faPercent, faFont, faPalette, faBars, faEllipsisV, faMugHot
 } from '@fortawesome/free-solid-svg-icons';
 
 // Toolbar container
@@ -116,6 +116,46 @@ const ToolButtonsRow = styled.div`
   gap: 0.5rem;
 `;
 
+// Dropdown para el menú de tres puntos
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: 2.5rem;
+  left: 0;
+  min-width: 205px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+  z-index: 100;
+  padding: 0.3rem 0;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.18s;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: none; }
+  }
+`;
+const DropdownItem = styled.button`
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  color: #222c36;
+  cursor: pointer;
+  transition: background 0.15s;
+  &:hover, &:focus {
+    background: #f0f4ff;
+    color: #4f46e5;
+    outline: none;
+  }
+`;
+const MenuWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
 function Toolbar({
   activeTool, onToolChange,
   color, onColorChange,
@@ -125,20 +165,49 @@ function Toolbar({
   onUndo, onRedo, onRotate, onZoomChange, zoom,
 }) {
   const colorInputRef = useRef();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef();
   const handleCustomColor = () => {
     colorInputRef.current.click();
   };
   const handleColorChange = (e) => {
     onColorChange(e.target.value);
   };
+  // Cerrar el menú al hacer click fuera
+  React.useEffect(() => {
+    if (!menuOpen) return;
+    function handleClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [menuOpen]);
   return (
     <ToolbarContainer>
       {/* Menu & Zoom */}
       <ToolGroup>
         <ToolButtonsRow>
-          <ToolButton title="Menu">
-            <FontAwesomeIcon icon={faEllipsisV} />
-          </ToolButton>
+          <MenuWrapper ref={menuRef}>
+            <ToolButton title="Menu" onClick={() => setMenuOpen(o => !o)}>
+              <FontAwesomeIcon icon={faBars} />
+            </ToolButton>
+            {menuOpen && (
+              <DropdownMenu>
+                <DropdownItem onClick={() => { setMenuOpen(false); onOpen(); }}>
+                  Abrir imagen
+                </DropdownItem>
+                <DropdownItem onClick={() => { setMenuOpen(false); onDownload(); }}>
+                  Descargar imagen
+                </DropdownItem>
+                <DropdownItem onClick={() => { setMenuOpen(false); window.open('https://cafecito.app/alejandroferrero', '_blank'); }}>
+                  Invitame un cafecito
+                  <FontAwesomeIcon icon={faMugHot} style={{ marginLeft: '8px' }} />
+                </DropdownItem>
+              </DropdownMenu>
+            )}
+          </MenuWrapper>
           <select
             aria-label="Zoom"
             value={zoom}
