@@ -96,7 +96,7 @@ function App() {
   const handleDownload = async () => {
     if (canvasAreaRef.current && canvasAreaRef.current.exportAs) {
       // Ask user for format
-      const format = window.prompt('Enter format: png, jpg, jpeg, pdf', 'png');
+      const format = window.prompt('Enter format: png, jpg, jpeg', 'png');
       if (!format) return;
       await canvasAreaRef.current.exportAs(format.toLowerCase());
     }
