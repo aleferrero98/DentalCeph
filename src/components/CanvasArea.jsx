@@ -91,9 +91,17 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
   // Store points, lines, and texts
-  const [points, setPoints] = useState([]); // {x, y, color, thickness, erasable}
-  const [lines, setLines] = useState([]);   // {x1, y1, x2, y2, color, thickness, erasable}
-  const [texts, setTexts] = useState([]);   // {x, y, text, color, fontSize, fontFamily, erasable}
+  const initialHistory = {
+    points: [],
+    lines: [],
+    texts: [],
+    angles: [],
+    jarabakLines: [],
+    undoStack: [],
+    redoStack: [],
+    idCounter: 1
+  };
+  const [history, setHistory] = useState(initialHistory);
   // For drawing lines
   const [drawingLine, setDrawingLine] = useState(null); // {x1, y1, x2, y2}
   // For adding/editing text
@@ -106,11 +114,8 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
   // Estado para selección de ángulo
   const [angleSelection, setAngleSelection] = useState([]); // indices de las líneas seleccionadas
   const [angleResult, setAngleResult] = useState(null); // resultado temporal
-  const [angles, setAngles] = useState([]); // { ... , erasable }
   const [hoveredLine, setHoveredLine] = useState(null); // índice de la recta bajo el cursor
   // Estado para Jarabak
-  const [jarabakLines, setJarabakLines] = useState([]); // { ... , erasable }
-  // Estado para mostrar el modal de Jarabak
   const [jarabakResult, setJarabakResult] = useState(null);
 
   // Get image size for correct scaling
@@ -142,8 +147,8 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
   const getLineAt = (x, y) => {
     // Tolerancia en píxeles
     const tolerance = 8;
-    for (let i = 0; i < lines.length; i++) {
-      const l = lines[i];
+    for (let i = 0; i < history.lines.length; i++) {
+      const l = history.lines[i];
       // Distancia punto-recta
       const dx = l.x2 - l.x1;
       const dy = l.y2 - l.y1;
@@ -172,7 +177,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       setDrawingLine({ x1: x, y1: y, x2: x, y2: y, color, thickness, erasable: true });
     } else if (activeTool === 'text') {
       // Check if clicking on existing text for moving
-      const idx = texts.findIndex(t => {
+      const idx = history.texts.findIndex(t => {
         // Simple bounding box hit test
         const ctx = canvasRef.current.getContext('2d');
         ctx.font = `${t.fontSize || fontSize}px ${t.fontFamily || fontFamily}`;
@@ -183,7 +188,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       if (idx !== -1) {
         // Start moving text
         setMovingTextIdx(idx);
-        setDragOffset({ x: x - texts[idx].x, y: y - texts[idx].y });
+        setDragOffset({ x: x - history.texts[idx].x, y: y - history.texts[idx].y });
       } else {
         // Add new text
         setInputPos({ x, y });
@@ -197,8 +202,8 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
         }
       } else if (angleSelection.length === 2) {
         // Esperar clic en el área del ángulo
-        const l1 = lines[angleSelection[0]];
-        const l2 = lines[angleSelection[1]];
+        const l1 = history.lines[angleSelection[0]];
+        const l2 = history.lines[angleSelection[1]];
         const intersection = getLinesIntersection(l1, l2);
         if (!intersection) {
           setAngleSelection([]);
@@ -270,7 +275,10 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       setDrawingLine((prev) => ({ ...prev, x2: x, y2: y }));
     } else if (movingTextIdx !== null) {
       const { x, y } = getRelativeCoords(e);
-      setTexts(prev => prev.map((t, i) => i === movingTextIdx ? { ...t, x: x - dragOffset.x, y: y - dragOffset.y } : t));
+      setHistory(h => ({
+        ...h,
+        texts: h.texts.map((t, i) => i === movingTextIdx ? { ...t, x: x - dragOffset.x, y: y - dragOffset.y } : t)
+      }));
     } else if (activeTool === 'angle') {
       const { x, y } = getRelativeCoords(e);
       const idx = getLineAt(x, y);
@@ -369,7 +377,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // Draw all lines (hover/selección)
-    lines.forEach((l, i) => {
+    history.lines.forEach((l, i) => {
       ctx.save();
       if (activeTool === 'angle' && (hoveredLine === i || angleSelection.includes(i))) {
         ctx.strokeStyle = l.color;
@@ -388,7 +396,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       ctx.restore();
     });
     // Dibujar líneas de Jarabak igual que las normales
-    jarabakLines.forEach((l) => {
+    history.jarabakLines.forEach((l) => {
       ctx.save();
       ctx.strokeStyle = l.color;
       ctx.lineWidth = l.thickness;
@@ -414,7 +422,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       ctx.restore();
     }
     // Draw all points
-    points.forEach(pt => {
+    history.points.forEach(pt => {
       ctx.save();
       ctx.fillStyle = pt.color;
       ctx.beginPath();
@@ -423,7 +431,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       ctx.restore();
     });
     // Draw all texts
-    texts.forEach(t => {
+    history.texts.forEach(t => {
       ctx.save();
       ctx.font = `${t.fontSize || 18}px ${t.fontFamily || 'Arial'}`;
       ctx.fillStyle = t.color || '#222';
@@ -432,7 +440,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       ctx.restore();
     });
     // Dibuja todos los ángulos guardados
-    angles.forEach(a => {
+    history.angles.forEach(a => {
       if (a.arcPoints) {
         const { center, radius, start, end } = a.arcPoints;
         ctx.save();
@@ -453,7 +461,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
         ctx.restore();
       }
     });
-  }, [points, lines, drawingLine, texts, image, imgDims, zoom, rotation, dashOffset, angleResult, angleSelection, hoveredLine, angles, jarabakLines]);
+  }, [history.points, history.lines, drawingLine, history.texts, image, imgDims, zoom, rotation, dashOffset, angleResult, angleSelection, hoveredLine, history.angles, history.jarabakLines]);
 
   // Canvas style: scale and rotate with image, top-left aligned
   const canvasStyle = {
@@ -509,7 +517,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     await new Promise(res => { img.onload = res; });
     ctx.drawImage(img, 0, 0, imgDims.width, imgDims.height);
     // Draw all lines
-    lines.forEach(l => {
+    history.lines.forEach(l => {
       ctx.save();
       ctx.strokeStyle = l.color;
       ctx.lineWidth = l.thickness;
@@ -520,7 +528,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       ctx.restore();
     });
     // Draw all points
-    points.forEach(pt => {
+    history.points.forEach(pt => {
       ctx.save();
       ctx.fillStyle = pt.color;
       ctx.beginPath();
@@ -529,7 +537,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       ctx.restore();
     });
     // Draw all texts
-    texts.forEach(t => {
+    history.texts.forEach(t => {
       ctx.save();
       ctx.font = `${t.fontSize || 18}px ${t.fontFamily || 'Arial'}`;
       ctx.fillStyle = t.color || '#222';
@@ -595,37 +603,48 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
 
   // Al cerrar el modal, eliminar las líneas de Jarabak
   const handleCloseJarabakModal = () => {
-    if (jarabakResult && jarabakResult.lines) {
-      setJarabakLines(prev => prev.filter(l => !l.erasable));
-    }
+    setHistory(h => ({
+      ...h,
+      jarabakLines: h.jarabakLines.filter(l => !l.erasable),
+      undoStack: h.undoStack.filter(item => item.type !== 'jarabak')
+    }));
     setJarabakResult(null);
   };
 
   // Limpiar jarabakLines y resultado al cambiar de modo o imagen
   useEffect(() => {
-    setJarabakLines(prev => prev.filter(l => !l.erasable));
+    setHistory(h => ({
+      ...h,
+      jarabakLines: h.jarabakLines.filter(l => !l.erasable)
+    }));
     setJarabakResult(null);
   }, [activeTool, image, pdf]);
 
   // Al guardar: marcar todos los elementos como no borrables
   const backupAnnotations = () => {
-    setPoints(prev => prev.map(pt => ({ ...pt, erasable: false })));
-    setLines(prev => prev.map(l => ({ ...l, erasable: false })));
-    setTexts(prev => prev.map(t => ({ ...t, erasable: false })));
-    setAngles(prev => prev.map(a => ({ ...a, erasable: false })));
-    setJarabakLines(prev => prev.map(jl => ({ ...jl, erasable: false })));
+    setHistory(h => ({
+      ...h,
+      points: h.points.map(pt => ({ ...pt, erasable: false })),
+      lines: h.lines.map(l => ({ ...l, erasable: false })),
+      texts: h.texts.map(t => ({ ...t, erasable: false })),
+      angles: h.angles.map(a => ({ ...a, erasable: false })),
+      jarabakLines: h.jarabakLines.map(jl => ({ ...jl, erasable: false })),
+      undoStack: h.undoStack.map(item => ({ ...item, element: { ...item.element, erasable: false } }))
+    }));
   };
 
   // Al borrar todo: eliminar solo los elementos borrables
   const clearAll = () => {
-    setPoints(prev => prev.filter(pt => !pt.erasable));
-    setLines(prev => prev.filter(l => !l.erasable));
-    setTexts(prev => prev.filter(t => !t.erasable));
-    setAngles(prev => prev.filter(a => !a.erasable));
-    setJarabakLines(prev => prev.filter(jl => !jl.erasable));
-    setAngleSelection([]);
-    setAngleResult(null);
-    setJarabakResult(null);
+    setHistory(h => ({
+      ...h,
+      points: h.points.filter(pt => !pt.erasable),
+      lines: h.lines.filter(l => !l.erasable),
+      texts: h.texts.filter(t => !t.erasable),
+      angles: h.angles.filter(a => !a.erasable),
+      jarabakLines: h.jarabakLines.filter(jl => !jl.erasable),
+      undoStack: [],
+      redoStack: []
+    }));
   };
 
   // useImperativeHandle para exponer las funciones
@@ -633,71 +652,134 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     clearAll,
     backupAnnotations,
     exportAs
-  }), [image, points, lines, texts, imgDims]);
+  }), [image, history.points, history.lines, history.texts, imgDims]);
 
-  const [undoStack, setUndoStack] = useState([]); // {type, element}
-  const [redoStack, setRedoStack] = useState([]); // {type, element}
+  const getNextId = (h) => h.idCounter;
 
   const addPoint = (pt) => {
-    setPoints(prev => [...prev, pt]);
-    setUndoStack(prev => [...prev, { type: 'point', element: pt }]);
-    setRedoStack([]);
+    setHistory(h => {
+      const id = getNextId(h);
+      const newPt = { ...pt, id };
+      return {
+        ...h,
+        points: [...h.points, newPt],
+        undoStack: [...h.undoStack, { type: 'point', id, element: newPt }],
+        redoStack: [],
+        idCounter: h.idCounter + 1
+      };
+    });
   };
   const addLine = (line) => {
-    setLines(prev => [...prev, line]);
-    setUndoStack(prev => [...prev, { type: 'line', element: line }]);
-    setRedoStack([]);
+    setHistory(h => {
+      const id = getNextId(h);
+      const newLine = { ...line, id };
+      return {
+        ...h,
+        lines: [...h.lines, newLine],
+        undoStack: [...h.undoStack, { type: 'line', id, element: newLine }],
+        redoStack: [],
+        idCounter: h.idCounter + 1
+      };
+    });
   };
   const addText = (text) => {
-    setTexts(prev => [...prev, text]);
-    setUndoStack(prev => [...prev, { type: 'text', element: text }]);
-    setRedoStack([]);
+    setHistory(h => {
+      const id = getNextId(h);
+      const newText = { ...text, id };
+      return {
+        ...h,
+        texts: [...h.texts, newText],
+        undoStack: [...h.undoStack, { type: 'text', id, element: newText }],
+        redoStack: [],
+        idCounter: h.idCounter + 1
+      };
+    });
   };
   const addAngle = (angle) => {
-    setAngles(prev => [...prev, angle]);
-    setUndoStack(prev => [...prev, { type: 'angle', element: angle }]);
-    setRedoStack([]);
+    setHistory(h => {
+      const id = getNextId(h);
+      const newAngle = { ...angle, id };
+      return {
+        ...h,
+        angles: [...h.angles, newAngle],
+        undoStack: [...h.undoStack, { type: 'angle', id, element: newAngle }],
+        redoStack: [],
+        idCounter: h.idCounter + 1
+      };
+    });
   };
   const addJarabakLine = (jl) => {
-    setJarabakLines(prev => [...prev, jl]);
-    setUndoStack(prev => [...prev, { type: 'jarabak', element: jl }]);
-    setRedoStack([]);
+    setHistory(h => {
+      const id = getNextId(h);
+      const newJL = { ...jl, id };
+      const newJarabakLines = [...h.jarabakLines, newJL];
+      // Si hay 2 líneas, calcular el porcentaje y mostrar el modal
+      if (newJarabakLines.length === 2) {
+        const len1 = Math.hypot(
+          newJarabakLines[0].x2 - newJarabakLines[0].x1,
+          newJarabakLines[0].y2 - newJarabakLines[0].y1
+        );
+        const len2 = Math.hypot(
+          newJarabakLines[1].x2 - newJarabakLines[1].x1,
+          newJarabakLines[1].y2 - newJarabakLines[1].y1
+        );
+        const ratio = len2 / len1;
+        setJarabakResult({ ratio, lines: newJarabakLines });
+      }
+      return {
+        ...h,
+        jarabakLines: newJarabakLines,
+        undoStack: [...h.undoStack, { type: 'jarabak', id, element: newJL }],
+        redoStack: [],
+        idCounter: h.idCounter + 1
+      };
+    });
   };
 
   const handleUndo = () => {
-    if (undoStack.length === 0) return;
-    const last = undoStack[undoStack.length - 1];
-    setUndoStack(undoStack.slice(0, -1));
-    setRedoStack([...redoStack, last]);
-    if (last.type === 'point') {
-      setPoints(points.filter(e => e !== last.element));
-    } else if (last.type === 'line') {
-      setLines(lines.filter(e => e !== last.element));
-    } else if (last.type === 'text') {
-      setTexts(texts.filter(e => e !== last.element));
-    } else if (last.type === 'angle') {
-      setAngles(angles.filter(e => e !== last.element));
-    } else if (last.type === 'jarabak') {
-      setJarabakLines(jarabakLines.filter(e => e !== last.element));
-    }
+    setHistory(h => {
+      if (h.undoStack.length === 0) return h;
+      const last = h.undoStack[h.undoStack.length - 1];
+      let newPoints = h.points, newLines = h.lines, newTexts = h.texts, newAngles = h.angles, newJarabak = h.jarabakLines;
+      if (last.type === 'point') newPoints = h.points.filter(e => e.id !== last.id);
+      if (last.type === 'line') newLines = h.lines.filter(e => e.id !== last.id);
+      if (last.type === 'text') newTexts = h.texts.filter(e => e.id !== last.id);
+      if (last.type === 'angle') newAngles = h.angles.filter(e => e.id !== last.id);
+      if (last.type === 'jarabak') newJarabak = h.jarabakLines.filter(e => e.id !== last.id);
+      return {
+        ...h,
+        points: newPoints,
+        lines: newLines,
+        texts: newTexts,
+        angles: newAngles,
+        jarabakLines: newJarabak,
+        undoStack: h.undoStack.slice(0, -1),
+        redoStack: [...h.redoStack, last]
+      };
+    });
   };
 
   const handleRedo = () => {
-    if (redoStack.length === 0) return;
-    const last = redoStack[redoStack.length - 1];
-    setRedoStack(redoStack.slice(0, -1));
-    setUndoStack([...undoStack, last]);
-    if (last.type === 'point') {
-      setPoints([...points, last.element]);
-    } else if (last.type === 'line') {
-      setLines([...lines, last.element]);
-    } else if (last.type === 'text') {
-      setTexts([...texts, last.element]);
-    } else if (last.type === 'angle') {
-      setAngles([...angles, last.element]);
-    } else if (last.type === 'jarabak') {
-      setJarabakLines([...jarabakLines, last.element]);
-    }
+    setHistory(h => {
+      if (h.redoStack.length === 0) return h;
+      const last = h.redoStack[h.redoStack.length - 1];
+      let newPoints = h.points, newLines = h.lines, newTexts = h.texts, newAngles = h.angles, newJarabak = h.jarabakLines;
+      if (last.type === 'point') newPoints = [...h.points, last.element];
+      if (last.type === 'line') newLines = [...h.lines, last.element];
+      if (last.type === 'text') newTexts = [...h.texts, last.element];
+      if (last.type === 'angle') newAngles = [...h.angles, last.element];
+      if (last.type === 'jarabak') newJarabak = [...h.jarabakLines, last.element];
+      return {
+        ...h,
+        points: newPoints,
+        lines: newLines,
+        texts: newTexts,
+        angles: newAngles,
+        jarabakLines: newJarabak,
+        undoStack: [...h.undoStack, last],
+        redoStack: h.redoStack.slice(0, -1)
+      };
+    });
   };
 
   useImperativeHandle(ref, () => ({
