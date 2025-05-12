@@ -106,8 +106,16 @@ function App() {
       canvasAreaRef.current.clearAll();
     }
   };
-  const handleUndo = () => {};
-  const handleRedo = () => {};
+  const handleUndo = () => {
+    if (canvasAreaRef.current && canvasAreaRef.current.handleUndo) {
+      canvasAreaRef.current.handleUndo();
+    }
+  };
+  const handleRedo = () => {
+    if (canvasAreaRef.current && canvasAreaRef.current.handleRedo) {
+      canvasAreaRef.current.handleRedo();
+    }
+  };
   const handleRotate = () => {
     setRotation(r => (r + 90) % 360);
   };
