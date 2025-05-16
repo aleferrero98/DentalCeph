@@ -78,12 +78,67 @@ function App() {
       };
       reader.readAsDataURL(file);
     } else if (ext === "pdf") {
-      const url = URL.createObjectURL(file);
-      setPdf(url);
-      setImage(null);
-      setZoom(100); // Set zoom to 100% when opening a PDF
-    } else {
-      alert("Unsupported file type. Please select a PNG, JPG, JPEG, or PDF file.");
+      const modal = document.createElement('div');
+      modal.style.padding = '20px';
+      modal.style.borderRadius = '8px';
+      modal.style.backgroundColor = 'white';
+      modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+      modal.style.position = 'fixed';
+      modal.style.top = '50%';
+      modal.style.left = '50%';
+      modal.style.transform = 'translate(-50%, -50%)';
+      modal.style.zIndex = '1000';
+      modal.style.textAlign = 'center';
+      modal.style.width = '500px';
+      modal.style.minWidth = '300px';
+      modal.style.maxWidth = '90%';
+
+      const overlay = document.createElement('div');
+      overlay.style.position = 'fixed';
+      overlay.style.top = '0';
+      overlay.style.left = '0';
+      overlay.style.width = '100%';
+      overlay.style.height = '100%';
+      overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+      overlay.style.zIndex = '999';
+      overlay.onclick = () => {
+        document.body.removeChild(overlay);
+        document.body.removeChild(modal);
+      };
+
+      const message = document.createElement('p');
+      message.textContent = 'El formato PDF no está soportado actualmente. Por favor, convierta su archivo a un formato compatible (PNG o JPG) utilizando un servicio externo.';
+
+      const convertBtn = document.createElement('button');
+      convertBtn.textContent = 'Convertir a PNG';
+      convertBtn.style.backgroundColor = '#ff9800';
+      convertBtn.style.color = 'white';
+      convertBtn.style.border = 'none';
+      convertBtn.style.padding = '10px 20px';
+      convertBtn.style.borderRadius = '5px';
+      convertBtn.style.cursor = 'pointer';
+      convertBtn.style.marginRight = '10px';
+      convertBtn.onclick = () => window.open('https://convertio.co/es/pdf-png/', '_blank');
+
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = 'Cerrar';
+      closeBtn.style.backgroundColor = '#ccc';
+      closeBtn.style.color = 'black';
+      closeBtn.style.border = 'none';
+      closeBtn.style.padding = '10px 20px';
+      closeBtn.style.borderRadius = '5px';
+      closeBtn.style.cursor = 'pointer';
+      closeBtn.onclick = () => {
+        document.body.removeChild(overlay);
+        document.body.removeChild(modal);
+      };
+
+      modal.appendChild(message);
+      modal.appendChild(convertBtn);
+      modal.appendChild(closeBtn);
+
+      document.body.appendChild(overlay);
+      document.body.appendChild(modal);
     }
     e.target.value = '';
   };
@@ -162,7 +217,6 @@ function App() {
           <CanvasArea
             ref={canvasAreaRef}
             image={image}
-            pdf={pdf}
             zoom={zoom}
             rotation={rotation}
             activeTool={activeTool}

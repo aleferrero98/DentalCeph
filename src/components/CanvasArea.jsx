@@ -166,7 +166,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
 
   // Mouse down: start drawing line, add point, or add/move text
   const handleMouseDown = (e) => {
-    if (!image || pdf) return;
+    if (!image || jarabakResult) return;
     if (e.button !== 0) return; // Only left click
     const { x, y } = getRelativeCoords(e);
     if (activeTool === 'point') {
@@ -382,7 +382,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       if (activeTool === 'angle' && (hoveredLine === i || angleSelection.includes(i))) {
         ctx.strokeStyle = l.color;
         ctx.lineWidth = l.thickness + (hoveredLine === i ? 3 : 0);
-        ctx.shadowColor = '#ff9800';
+        ctx.shadowColor = color;
         ctx.shadowBlur = 8;
       } else {
         ctx.strokeStyle = l.color;
@@ -782,7 +782,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     >
       {!image && !pdf && (
         <HelpText>
-          🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG, JPG o PDF! 🚀<br/>
+          🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG o JPG! 🚀<br/>
           🛠️ Usa la barra de herramientas superior para seleccionar colores 🎨 y herramientas ✏️
         </HelpText>
       )}
@@ -827,7 +827,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
           <ModalBox>
             <h2>Jarabak Ratio</h2>
             <div style={{ fontSize: '2.2rem', color: '#ff9800', margin: '1.2rem 0' }}>{jarabakResult.ratio.toFixed(3)}</div>
-            <ModalButton onClick={handleCloseJarabakModal}>Close</ModalButton>
+            <ModalButton onClick={handleCloseJarabakModal} style={{ backgroundColor: '#ccc', color: 'black' }}>Cerrar</ModalButton>
           </ModalBox>
         </ModalOverlay>
       )}
