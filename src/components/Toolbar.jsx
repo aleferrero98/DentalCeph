@@ -194,7 +194,7 @@ function Toolbar({
       <ToolGroup>
         <ToolButtonsRow>
           <MenuWrapper ref={menuRef}>
-            <ToolButton title="Menu" onClick={() => setMenuOpen(o => !o)}>
+            <ToolButton title="Menú" onClick={() => setMenuOpen(o => !o)}>
               <FontAwesomeIcon icon={faBars} />
             </ToolButton>
             {menuOpen && (
@@ -218,7 +218,7 @@ function Toolbar({
             onChange={e => onZoomChange(Number(e.target.value))}
             style={{ marginLeft: 8, fontSize: '1rem', borderRadius: 6 }}
           >
-            {[50, 75, 100, 125, 150, 200].map(z => (
+            {[10, 25, 50, 75, 90, 100, 110, 125, 150, 175, 200].map(z => (
               <option key={z} value={z}>{z}%</option>
             ))}
           </select>
@@ -228,25 +228,25 @@ function Toolbar({
       {/* File actions + Undo/Redo/Rotate */}
       <ToolGroup>
         <ToolButtonsRow>
-          <ToolButton title="Open image" onClick={onOpen}>
+          <ToolButton title="Abrir imagen" onClick={onOpen}>
             <FontAwesomeIcon icon={faFolderOpen} />
           </ToolButton>
-          <ToolButton title="Save" onClick={onSave}>
+          <ToolButton title="Guardar cambios" onClick={onSave}>
             <FontAwesomeIcon icon={faSave} />
           </ToolButton>
-          <ToolButton title="Download" onClick={onDownload}>
+          <ToolButton title="Descargar imagen" onClick={onDownload}>
             <FontAwesomeIcon icon={faDownload} />
           </ToolButton>
-          <ToolButton title="Delete all" onClick={onDelete}>
+          <ToolButton title="Borrar el contenido de la imagen" onClick={onDelete}>
             <FontAwesomeIcon icon={faTrash} />
           </ToolButton>
-          <ToolButton title="Undo" onClick={onUndo}>
+          <ToolButton title="Deshacer cambios" onClick={onUndo}>
             <FontAwesomeIcon icon={faUndo} />
           </ToolButton>
-          <ToolButton title="Redo" onClick={onRedo}>
+          <ToolButton title="Rehacer cambios" onClick={onRedo}>
             <FontAwesomeIcon icon={faRedo} />
           </ToolButton>
-          <ToolButton title="Rotate" onClick={onRotate}>
+          <ToolButton title="Rotar imagen" onClick={onRotate}>
             <FontAwesomeIcon icon={faSyncAlt} />
           </ToolButton>
         </ToolButtonsRow>
@@ -255,16 +255,16 @@ function Toolbar({
       {/* Tools */}
       <ToolGroup>
         <ToolButtonsRow>
-          <ToolButton title="Mark point" active={activeTool==='point'} onClick={()=>onToolChange('point')}>
+          <ToolButton title="Marcar punto" active={activeTool==='point'} onClick={()=>onToolChange('point')}>
             <FontAwesomeIcon icon={faDotCircle} />
           </ToolButton>
-          <ToolButton title="Draw line" active={activeTool==='line'} onClick={()=>onToolChange('line')}>
+          <ToolButton title="Trazar recta" active={activeTool==='line'} onClick={()=>onToolChange('line')}>
             <FontAwesomeIcon icon={faSlash} />
           </ToolButton>
-          <ToolButton title="Angle" active={activeTool==='angle'} onClick={()=>onToolChange('angle')}>
+          <ToolButton title="Medir ángulo" active={activeTool==='angle'} onClick={()=>onToolChange('angle')}>
             <FontAwesomeIcon icon={faRulerCombined} />
           </ToolButton>
-          <ToolButton title="Jarabak %" active={activeTool==='jarabak'} onClick={()=>onToolChange('jarabak')}>
+          <ToolButton title="Medir y calcular el porcentaje de Jarabak" active={activeTool==='jarabak'} onClick={()=>onToolChange('jarabak')}>
             <FontAwesomeIcon icon={faPercent} />
           </ToolButton>
         </ToolButtonsRow>
@@ -277,7 +277,7 @@ function Toolbar({
           {THICKNESS.map(t => (
             <ToolButton
               key={t}
-              title={`Thickness ${t}`}
+              title={`Grosor ${t}`}
               active={thickness===t}
               onClick={()=>onThicknessChange(t)}
               style={{padding: 0, width: 32, height: 32, justifyContent: 'center'}}
@@ -293,7 +293,7 @@ function Toolbar({
       <ToolGroup>
         <ToolButtonsRow>
           {/* Círculo grande para color actual */}
-          <CurrentColorCircle color={color} title="Current color" />
+          <CurrentColorCircle color={color} title="Color seleccionado" />
           {COLORS.map(c => (
             <ColorDot
               key={c}
@@ -305,7 +305,7 @@ function Toolbar({
           ))}
           {/* Botón para color personalizado con icono y estilo de ToolButton */}
           <ToolButton
-            title="Custom color"
+            title="Seleccionar color"
             style={{ padding: 0, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onClick={handleCustomColor}
           >
@@ -325,7 +325,7 @@ function Toolbar({
       {/* Text tool */}
       <ToolGroup>
         <ToolButtonsRow>
-          <ToolButton title="Text" active={activeTool==='text'} onClick={()=>onToolChange('text')}>
+          <ToolButton title="Añadir texto" active={activeTool==='text'} onClick={()=>onToolChange('text')}>
             <FontAwesomeIcon icon={faFont} />
           </ToolButton>
           <select

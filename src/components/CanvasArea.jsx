@@ -166,7 +166,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
 
   // Mouse down: start drawing line, add point, or add/move text
   const handleMouseDown = (e) => {
-    if (!image || pdf) return;
+    if (!image || jarabakResult) return;
     if (e.button !== 0) return; // Only left click
     const { x, y } = getRelativeCoords(e);
     if (activeTool === 'point') {
@@ -382,7 +382,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       if (activeTool === 'angle' && (hoveredLine === i || angleSelection.includes(i))) {
         ctx.strokeStyle = l.color;
         ctx.lineWidth = l.thickness + (hoveredLine === i ? 3 : 0);
-        ctx.shadowColor = '#ff9800';
+        ctx.shadowColor = color;
         ctx.shadowBlur = 8;
       } else {
         ctx.strokeStyle = l.color;
@@ -545,48 +545,30 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       ctx.fillText(t.text, t.x, t.y);
       ctx.restore();
     });
-    // Save as requested format
-    if (format === 'pdf') {
-      const pdf = new jsPDF({ orientation: tempCanvas.width > tempCanvas.height ? 'l' : 'p', unit: 'px', format: [tempCanvas.width, tempCanvas.height] });
-      pdf.addImage(tempCanvas.toDataURL('image/png'), 'PNG', 0, 0, tempCanvas.width, tempCanvas.height);
-      // File System Access API
-      if (window.showSaveFilePicker) {
-        const opts = {
-          suggestedName: 'dentalceph.pdf',
-          types: [{ description: 'PDF', accept: { 'application/pdf': ['.pdf'] } }]
-        };
-        const handle = await window.showSaveFilePicker(opts);
-        const writable = await handle.createWritable();
-        await writable.write(pdf.output('arraybuffer'));
-        await writable.close();
-      } else {
-        pdf.save('dentalceph.pdf');
-      }
+    // Save as requested format (png, jpg, jpeg)
+    const mime = format === 'jpg' || format === 'jpeg' ? 'image/jpeg' : 'image/png';
+    const ext = format === 'jpg' ? 'jpg' : format === 'jpeg' ? 'jpeg' : 'png';
+    const dataUrl = tempCanvas.toDataURL(mime);
+    // File System Access API
+    if (window.showSaveFilePicker) {
+      const opts = {
+        suggestedName: `dentalceph.${ext}`,
+        types: [{ description: 'Image', accept: { [mime]: [`.${ext}`] } }]
+      };
+      const handle = await window.showSaveFilePicker(opts);
+      const writable = await handle.createWritable();
+      // Convert base64 to blob
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      await writable.write(blob);
+      await writable.close();
     } else {
-      const mime = format === 'jpg' || format === 'jpeg' ? 'image/jpeg' : 'image/png';
-      const ext = format === 'jpg' ? 'jpg' : format === 'jpeg' ? 'jpeg' : 'png';
-      const dataUrl = tempCanvas.toDataURL(mime);
-      // File System Access API
-      if (window.showSaveFilePicker) {
-        const opts = {
-          suggestedName: `dentalceph.${ext}`,
-          types: [{ description: 'Image', accept: { [mime]: [`.${ext}`] } }]
-        };
-        const handle = await window.showSaveFilePicker(opts);
-        const writable = await handle.createWritable();
-        // Convert base64 to blob
-        const res = await fetch(dataUrl);
-        const blob = await res.blob();
-        await writable.write(blob);
-        await writable.close();
-      } else {
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = `dentalceph.${ext}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `dentalceph.${ext}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -800,7 +782,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     >
       {!image && !pdf && (
         <HelpText>
-          🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG, JPG o PDF! 🚀<br/>
+          🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG o JPG! 🚀<br/>
           🛠️ Usa la barra de herramientas superior para seleccionar colores 🎨 y herramientas ✏️
         </HelpText>
       )}
@@ -845,7 +827,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
           <ModalBox>
             <h2>Jarabak Ratio</h2>
             <div style={{ fontSize: '2.2rem', color: '#ff9800', margin: '1.2rem 0' }}>{jarabakResult.ratio.toFixed(3)}</div>
-            <ModalButton onClick={handleCloseJarabakModal}>Close</ModalButton>
+            <ModalButton onClick={handleCloseJarabakModal} style={{ backgroundColor: '#ccc', color: 'black' }}>Cerrar</ModalButton>
           </ModalBox>
         </ModalOverlay>
       )}
