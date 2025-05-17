@@ -27,3 +27,13 @@ DentalCeph is a web application for cephalometric analysis, inspired by Windows 
 1. Install dependencies: `npm install`
 2. Start the app: `npm run dev`
 
+## License
+This project is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+
+By using or deploying this project, you agree to the following:
+- You may freely use, modify, and host this project.
+- Any public deployment must remain **free for everyone to access**.
+- If you modify and deploy this project, you must **also make your source code available** under the same license.
+- **Attribution is required** — you must give appropriate credit to the original author.
+
+For commercial or enterprise use outside these terms, please contact me directly.
