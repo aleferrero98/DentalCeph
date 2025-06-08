@@ -3,8 +3,9 @@ import styled, { css } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFolderOpen, faSave, faDownload, faTrash, faUndo, faRedo, faSyncAlt,
-  faDotCircle, faSlash, faRulerCombined, faPercent, faFont, faPalette, faBars, faEllipsisV, faMugHot
+  faDotCircle, faSlash, faRulerCombined, faPercent, faFont, faPalette, faBars, faMugHot, faWandMagicSparkles
 } from '@fortawesome/free-solid-svg-icons';
+import Tour from './Tour';
 
 // Toolbar container
 const ToolbarContainer = styled.div`
@@ -125,7 +126,7 @@ const DropdownMenu = styled.div`
   position: absolute;
   top: 2.5rem;
   left: 0;
-  min-width: 205px;
+  min-width: 207px;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.13);
@@ -170,7 +171,13 @@ function Toolbar({
 }) {
   const colorInputRef = useRef();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const menuRef = useRef();
+
+  const handleTourClose = () => {
+    setShowTour(false);
+  };
+
   const handleCustomColor = () => {
     colorInputRef.current.click();
   };
@@ -189,7 +196,7 @@ function Toolbar({
     return () => document.removeEventListener('mousedown', handleClick);
   }, [menuOpen]);
   return (
-    <ToolbarContainer>
+    <ToolbarContainer className="toolbar-container">
       {/* Menu & Zoom */}
       <ToolGroup>
         <ToolButtonsRow>
@@ -204,6 +211,10 @@ function Toolbar({
                 </DropdownItem>
                 <DropdownItem onClick={() => { setMenuOpen(false); onDownload(); }}>
                   Descargar imagen
+                </DropdownItem>
+                <DropdownItem onClick={() => { setMenuOpen(false); setShowTour(true); }}>
+                  Descubrir funciones
+                  <FontAwesomeIcon icon={faWandMagicSparkles} style={{ marginLeft: '8px' }} />
                 </DropdownItem>
                 <DropdownItem onClick={() => { setMenuOpen(false); window.open('https://cafecito.app/alejandroferrero', '_blank'); }}>
                   Invitame un cafecito
@@ -228,25 +239,25 @@ function Toolbar({
       {/* File actions + Undo/Redo/Rotate */}
       <ToolGroup>
         <ToolButtonsRow>
-          <ToolButton title="Abrir imagen" onClick={onOpen}>
+          <ToolButton title="Abrir imagen" onClick={onOpen} id="open-image-button">
             <FontAwesomeIcon icon={faFolderOpen} />
           </ToolButton>
-          <ToolButton title="Guardar cambios" onClick={onSave}>
+          <ToolButton title="Guardar cambios" onClick={onSave} id="save-changes-button">
             <FontAwesomeIcon icon={faSave} />
           </ToolButton>
-          <ToolButton title="Descargar imagen" onClick={onDownload}>
+          <ToolButton title="Descargar imagen" onClick={onDownload} id="download-image-button">
             <FontAwesomeIcon icon={faDownload} />
           </ToolButton>
-          <ToolButton title="Borrar el contenido de la imagen" onClick={onDelete}>
+          <ToolButton title="Borrar el contenido de la imagen" onClick={onDelete} id="delete-content-button">
             <FontAwesomeIcon icon={faTrash} />
           </ToolButton>
-          <ToolButton title="Deshacer cambios" onClick={onUndo}>
+          <ToolButton title="Deshacer cambios" onClick={onUndo} id="undo-button">
             <FontAwesomeIcon icon={faUndo} />
           </ToolButton>
-          <ToolButton title="Rehacer cambios" onClick={onRedo}>
+          <ToolButton title="Rehacer cambios" onClick={onRedo} id="redo-button">
             <FontAwesomeIcon icon={faRedo} />
           </ToolButton>
-          <ToolButton title="Rotar imagen" onClick={onRotate}>
+          <ToolButton title="Rotar imagen" onClick={onRotate} id="rotate-image-button">
             <FontAwesomeIcon icon={faSyncAlt} />
           </ToolButton>
         </ToolButtonsRow>
@@ -255,16 +266,16 @@ function Toolbar({
       {/* Tools */}
       <ToolGroup>
         <ToolButtonsRow>
-          <ToolButton title="Marcar punto" active={activeTool==='point'} onClick={()=>onToolChange('point')}>
+          <ToolButton title="Marcar punto" active={activeTool==='point'} onClick={()=>onToolChange('point')} id="point-mode-button">
             <FontAwesomeIcon icon={faDotCircle} />
           </ToolButton>
-          <ToolButton title="Trazar recta" active={activeTool==='line'} onClick={()=>onToolChange('line')}>
+          <ToolButton title="Trazar recta" active={activeTool==='line'} onClick={()=>onToolChange('line')} id="line-mode-button">
             <FontAwesomeIcon icon={faSlash} />
           </ToolButton>
-          <ToolButton title="Medir ángulo" active={activeTool==='angle'} onClick={()=>onToolChange('angle')}>
+          <ToolButton title="Medir ángulo" active={activeTool==='angle'} onClick={()=>onToolChange('angle')} id="angle-mode-button">
             <FontAwesomeIcon icon={faRulerCombined} />
           </ToolButton>
-          <ToolButton title="Medir y calcular el porcentaje de Jarabak" active={activeTool==='jarabak'} onClick={()=>onToolChange('jarabak')}>
+          <ToolButton title="Medir y calcular el porcentaje de Jarabak" active={activeTool==='jarabak'} onClick={()=>onToolChange('jarabak')} id="jarabak-mode-button">
             <FontAwesomeIcon icon={faPercent} />
           </ToolButton>
         </ToolButtonsRow>
@@ -272,7 +283,7 @@ function Toolbar({
       </ToolGroup>
 
       {/* Thickness */}
-      <ToolGroup>
+      <ToolGroup id="thickness-tool-group">
         <ToolButtonsRow>
           {THICKNESS.map(t => (
             <ToolButton
@@ -290,7 +301,7 @@ function Toolbar({
       </ToolGroup>
 
       {/* Color palette */}
-      <ToolGroup>
+      <ToolGroup id="color-palette-tool-group">
         <ToolButtonsRow>
           {/* Círculo grande para color actual */}
           <CurrentColorCircle color={color} title="Color seleccionado" />
@@ -341,6 +352,7 @@ function Toolbar({
         </ToolButtonsRow>
         <ToolLabel>Texto</ToolLabel>
       </ToolGroup>
+      {showTour && <Tour onClose={handleTourClose} />}
     </ToolbarContainer>
   );
 }

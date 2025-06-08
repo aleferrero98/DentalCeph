@@ -503,7 +503,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     };
   };
 
-  // Export as PNG/JPG/JPEG/PDF (original size, no margins)
+  // Export as PNG/JPG/JPEG/WEBP (original size, no margins)
   const exportAs = async (format = 'png') => {
     if (!image) return;
     // Create a temp canvas with original image size
@@ -545,9 +545,22 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       ctx.fillText(t.text, t.x, t.y);
       ctx.restore();
     });
-    // Save as requested format (png, jpg, jpeg)
-    const mime = format === 'jpg' || format === 'jpeg' ? 'image/jpeg' : 'image/png';
-    const ext = format === 'jpg' ? 'jpg' : format === 'jpeg' ? 'jpeg' : 'png';
+    // Save as requested format (png, jpg, jpeg, webp)
+    let mime, ext;
+    switch(format.toLowerCase()) {
+      case 'jpg':
+      case 'jpeg':
+        mime = 'image/jpeg';
+        ext = 'jpg';
+        break;
+      case 'webp':
+        mime = 'image/webp';
+        ext = 'webp';
+        break;
+      default:
+        mime = 'image/png';
+        ext = 'png';
+    }
     const dataUrl = tempCanvas.toDataURL(mime);
     // File System Access API
     if (window.showSaveFilePicker) {
@@ -782,7 +795,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     >
       {!image && !pdf && (
         <HelpText>
-          🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG o JPG! 🚀<br/>
+          🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG, JPG o WebP! 🚀<br/>
           🛠️ Usa la barra de herramientas superior para seleccionar colores 🎨 y herramientas ✏️
         </HelpText>
       )}

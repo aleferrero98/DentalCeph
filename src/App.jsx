@@ -69,7 +69,7 @@ function App() {
     if (canvasAreaRef.current && canvasAreaRef.current.clearAll) {
       canvasAreaRef.current.clearAll();
     }
-    if (["png", "jpg", "jpeg"].includes(ext)) {
+    if (["png", "jpg", "jpeg", "webp"].includes(ext)) {
       const reader = new FileReader();
       reader.onload = (ev) => {
         setImage(ev.target.result);
@@ -207,7 +207,7 @@ function App() {
           />
           <input
             type="file"
-            accept=".png,.jpg,.jpeg,.pdf"
+            accept=".png,.jpg,.jpeg,.webp,.pdf"
             style={{ display: 'none' }}
             ref={fileInputRef}
             onChange={handleFileChange}
