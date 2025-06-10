@@ -107,7 +107,7 @@ function App() {
       };
 
       const message = document.createElement('p');
-      message.textContent = 'El formato PDF no está soportado actualmente. Por favor, convierta su archivo a un formato compatible (PNG o JPG) utilizando un servicio externo.';
+      message.textContent = 'El formato PDF no está soportado actualmente. Por favor, convierta su archivo a un formato compatible (PNG, JPG o WebP) utilizando un servicio externo.';
 
       const convertBtn = document.createElement('button');
       convertBtn.textContent = 'Convertir a PNG';
@@ -151,7 +151,7 @@ function App() {
   const handleDownload = async () => {
     if (canvasAreaRef.current && canvasAreaRef.current.exportAs) {
       // Ask user for format
-      const format = window.prompt('Enter format: png, jpg, jpeg', 'png');
+      const format = window.prompt('Enter format: png, jpg, jpeg, webp', 'png');
       if (!format) return;
       await canvasAreaRef.current.exportAs(format.toLowerCase());
     }
