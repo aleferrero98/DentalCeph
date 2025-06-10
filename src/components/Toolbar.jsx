@@ -51,7 +51,7 @@ const ToolButton = styled.button`
   cursor: pointer;
   display: flex;
   align-items: center;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   transition: background 0.2s;
   outline: none;
   &:hover, &:focus {
