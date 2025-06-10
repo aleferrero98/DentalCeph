@@ -31,11 +31,23 @@ const PdfPreview = styled.iframe`
   background: #fff;
 `;
 
+const WelcomeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 150px;
+`;
+
+const HomeImage = styled.img`
+  width: 500px;
+  height: auto;
+`;
+
 const HelpText = styled.div`
   color: #888;
   font-size: 1.2rem;
+  font-family: 'Nunito Sans', sans-serif;
   text-align: center;
-  padding: 2rem;
 `;
 
 const FloatingInput = styled.input`
@@ -120,6 +132,8 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
 
   // Get image size for correct scaling
   const [imgDims, setImgDims] = useState({ width: 0, height: 0 });
+
+  const [showBanner, setShowBanner] = useState(true);
 
   // Update image dimensions on load
   const handleImgLoad = (e) => {
@@ -794,10 +808,15 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       style={{ cursor: image && !pdf ? (activeTool === 'point' ? 'crosshair' : activeTool === 'line' ? 'pointer' : activeTool === 'text' ? 'text' : 'default') : 'default' }}
     >
       {!image && !pdf && (
-        <HelpText>
-          🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG, JPG o WebP! 🚀<br/>
-          🛠️ Usa la barra de herramientas superior para seleccionar colores 🎨 y herramientas ✏️
-        </HelpText>
+        <WelcomeContainer>
+          {showBanner && (
+            <HomeImage src="/home-image.png" alt="DentalCeph home image" onError={() => setShowBanner(false)} />
+          )}
+          <HelpText>
+            🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG, JPG o WebP! 🚀<br/>
+            🛠️ Usa la barra de herramientas superior para seleccionar colores 🎨 y herramientas ✏️
+          </HelpText>
+        </WelcomeContainer>
       )}
       {image && (
         <>

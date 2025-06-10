@@ -79,17 +79,18 @@ const ColorDot = styled.div`
 
 // Label for accessibility
 const ToolLabel = styled.span`
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   color: #222c36;
   margin-top: 0.2rem;
   text-align: center;
   width: 100%;
+  font-family: 'Nunito Sans', sans-serif;
 `;
 
 // Example color palette
 const COLORS = [
-  '#ff9800', '#000', '#fff', '#f44336', '#4caf50', '#2196f3', '#e91e63',
-  '#ffeb3b', '#00e676', '#00bcd4', '#9c27b0', '#607d8b', '#bdbdbd', '#ffc107',
+  '#ff9800', '#00e676', '#f44336', '#d6d6d6', '#000',
+  '#ffeb3b', '#ff00ff', '#00ffff', '#9c27b0', '#fff'
 ];
 
 // Example thickness options
@@ -98,10 +99,12 @@ const THICKNESS = [2, 4, 7];
 // Example font sizes
 const FONT_SIZES = [14, 18, 24, 32];
 
+const ICON_COLOR = "#222c36";
+
 // Círculo grande para mostrar el color seleccionado
 const CurrentColorCircle = styled.div`
-  width: 32px;
-  height: 32px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: ${({ color }) => color};
   border: 3px solid #bbb;
@@ -144,8 +147,9 @@ const DropdownItem = styled.button`
   background: none;
   border: none;
   text-align: left;
-  padding: 0.7rem 1.2rem;
+  padding: 0.5rem 1.2rem;
   font-size: 1rem;
+  font-family: 'Nunito Sans', sans-serif;
   color: #222c36;
   cursor: pointer;
   transition: background 0.15s;
@@ -159,6 +163,15 @@ const MenuWrapper = styled.div`
   position: relative;
   display: flex;
   align-items: center;
+`;
+
+// Special container for color palette
+const ColorPaletteRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-width: 180px;
+  justify-content: center;
 `;
 
 function Toolbar({
@@ -202,7 +215,7 @@ function Toolbar({
         <ToolButtonsRow>
           <MenuWrapper ref={menuRef}>
             <ToolButton title="Menú" onClick={() => setMenuOpen(o => !o)}>
-              <FontAwesomeIcon icon={faBars} />
+              <FontAwesomeIcon icon={faBars} style={{ color: ICON_COLOR }} />
             </ToolButton>
             {menuOpen && (
               <DropdownMenu>
@@ -214,11 +227,11 @@ function Toolbar({
                 </DropdownItem>
                 <DropdownItem onClick={() => { setMenuOpen(false); setShowTour(true); }}>
                   Descubrir funciones
-                  <FontAwesomeIcon icon={faWandMagicSparkles} style={{ marginLeft: '8px' }} />
+                  <FontAwesomeIcon icon={faWandMagicSparkles} style={{ color: ICON_COLOR, marginLeft: '8px' }} />
                 </DropdownItem>
                 <DropdownItem onClick={() => { setMenuOpen(false); window.open('https://cafecito.app/alejandroferrero', '_blank'); }}>
                   Invitame un cafecito
-                  <FontAwesomeIcon icon={faMugHot} style={{ marginLeft: '8px' }} />
+                  <FontAwesomeIcon icon={faMugHot} style={{ color: ICON_COLOR, marginLeft: '8px' }} />
                 </DropdownItem>
               </DropdownMenu>
             )}
@@ -240,25 +253,25 @@ function Toolbar({
       <ToolGroup>
         <ToolButtonsRow>
           <ToolButton title="Abrir imagen" onClick={onOpen} id="open-image-button">
-            <FontAwesomeIcon icon={faFolderOpen} />
+            <FontAwesomeIcon icon={faFolderOpen} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <ToolButton title="Guardar cambios" onClick={onSave} id="save-changes-button">
-            <FontAwesomeIcon icon={faSave} />
+            <FontAwesomeIcon icon={faSave} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <ToolButton title="Descargar imagen" onClick={onDownload} id="download-image-button">
-            <FontAwesomeIcon icon={faDownload} />
+            <FontAwesomeIcon icon={faDownload} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <ToolButton title="Borrar el contenido de la imagen" onClick={onDelete} id="delete-content-button">
-            <FontAwesomeIcon icon={faTrash} />
+            <FontAwesomeIcon icon={faTrash} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <ToolButton title="Deshacer cambios" onClick={onUndo} id="undo-button">
-            <FontAwesomeIcon icon={faUndo} />
+            <FontAwesomeIcon icon={faUndo} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <ToolButton title="Rehacer cambios" onClick={onRedo} id="redo-button">
-            <FontAwesomeIcon icon={faRedo} />
+            <FontAwesomeIcon icon={faRedo} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <ToolButton title="Rotar imagen" onClick={onRotate} id="rotate-image-button">
-            <FontAwesomeIcon icon={faSyncAlt} />
+            <FontAwesomeIcon icon={faSyncAlt} style={{ color: ICON_COLOR }} />
           </ToolButton>
         </ToolButtonsRow>
       </ToolGroup>
@@ -267,16 +280,16 @@ function Toolbar({
       <ToolGroup>
         <ToolButtonsRow>
           <ToolButton title="Marcar punto" active={activeTool==='point'} onClick={()=>onToolChange('point')} id="point-mode-button">
-            <FontAwesomeIcon icon={faDotCircle} />
+            <FontAwesomeIcon icon={faDotCircle} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <ToolButton title="Trazar recta" active={activeTool==='line'} onClick={()=>onToolChange('line')} id="line-mode-button">
-            <FontAwesomeIcon icon={faSlash} />
+            <FontAwesomeIcon icon={faSlash} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <ToolButton title="Medir ángulo" active={activeTool==='angle'} onClick={()=>onToolChange('angle')} id="angle-mode-button">
-            <FontAwesomeIcon icon={faRulerCombined} />
+            <FontAwesomeIcon icon={faRulerCombined} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <ToolButton title="Medir y calcular el porcentaje de Jarabak" active={activeTool==='jarabak'} onClick={()=>onToolChange('jarabak')} id="jarabak-mode-button">
-            <FontAwesomeIcon icon={faPercent} />
+            <FontAwesomeIcon icon={faPercent} style={{ color: ICON_COLOR }} />
           </ToolButton>
         </ToolButtonsRow>
         <ToolLabel>Herramientas</ToolLabel>
@@ -293,7 +306,7 @@ function Toolbar({
               onClick={()=>onThicknessChange(t)}
               style={{padding: 0, width: 32, height: 32, justifyContent: 'center'}}
             >
-              <div style={{width: 24, height: t, background: '#222c36', borderRadius: 4}} />
+              <div style={{width: 24, height: t, background: ICON_COLOR, borderRadius: 4}} />
             </ToolButton>
           ))}
         </ToolButtonsRow>
@@ -303,24 +316,24 @@ function Toolbar({
       {/* Color palette */}
       <ToolGroup id="color-palette-tool-group">
         <ToolButtonsRow>
-          {/* Círculo grande para color actual */}
           <CurrentColorCircle color={color} title="Color seleccionado" />
-          {COLORS.map(c => (
-            <ColorDot
-              key={c}
-              color={c}
-              selected={color===c}
-              onClick={()=>onColorChange(c)}
-              title={c}
-            />
-          ))}
-          {/* Botón para color personalizado con icono y estilo de ToolButton */}
+          <ColorPaletteRow>
+            {COLORS.map(c => (
+              <ColorDot
+                key={c}
+                color={c}
+                selected={color===c}
+                onClick={()=>onColorChange(c)}
+                title={c}
+              />
+            ))}
+          </ColorPaletteRow>
           <ToolButton
             title="Seleccionar color"
             style={{ padding: 0, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onClick={handleCustomColor}
           >
-            <FontAwesomeIcon icon={faPalette} style={{ color: '#888', fontSize: '1.2rem' }} />
+            <FontAwesomeIcon icon={faPalette} style={{ color: ICON_COLOR }} />
             <input
               type="color"
               ref={colorInputRef}
@@ -337,7 +350,7 @@ function Toolbar({
       <ToolGroup>
         <ToolButtonsRow>
           <ToolButton title="Añadir texto" active={activeTool==='text'} onClick={()=>onToolChange('text')}>
-            <FontAwesomeIcon icon={faFont} />
+            <FontAwesomeIcon icon={faFont} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <select
             aria-label="Font size"
