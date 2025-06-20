@@ -12,13 +12,13 @@ const ToolbarContainer = styled.div`
   display: flex;
   align-items: center;
   background: #fff;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  gap: 1.5rem;
+  gap: 1.2rem;
   flex-wrap: wrap;
   @media (max-width: 900px) {
-    gap: 0.5rem;
-    padding: 0.5rem 0.2rem;
+    gap: 0.4rem;
+    padding: 0.4rem 0.16rem;
   }
 `;
 
@@ -27,14 +27,14 @@ const ToolGroup = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   border-right: 2px solid #eee;
-  padding-right: 1.2rem;
+  padding-right: 0.96rem;
   &:first-child {
     padding-left: 0;
   }
   &:not(:first-child) {
-    padding-left: 1.2rem;
+    padding-left: 0.96rem;
   }
   &:last-child {
     border-right: none;
@@ -46,12 +46,12 @@ const ToolGroup = styled.div`
 const ToolButton = styled.button`
   background: ${({ active }) => (active ? '#e0e7ff' : 'transparent')};
   border: none;
-  border-radius: 8px;
-  padding: 0.5rem;
+  border-radius: 6px;
+  padding: 0.4rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   transition: background 0.2s;
   outline: none;
   &:hover, &:focus {
@@ -64,24 +64,24 @@ const ToolButton = styled.button`
 
 // Color dot
 const ColorDot = styled.div`
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: ${({ color }) => color};
   border: 2px solid #fff;
-  box-shadow: 0 0 0 1.5px #bbb;
+  box-shadow: 0 0 0 1.2px #bbb;
   cursor: pointer;
-  margin-right: 0.2rem;
+  margin-right: 0.16rem;
   ${({ selected }) => selected && css`
-    box-shadow: 0 0 0 2.5px #4f46e5;
+    box-shadow: 0 0 0 2px #4f46e5;
   `}
 `;
 
 // Label for accessibility
 const ToolLabel = styled.span`
-  font-size: 1.0rem;
+  font-size: 0.8rem;
   color: #222c36;
-  margin-top: 0.2rem;
+  margin-top: 0.16rem;
   text-align: center;
   width: 100%;
   font-family: 'Nunito Sans', sans-serif;
@@ -103,12 +103,12 @@ const ICON_COLOR = "#222c36";
 
 // Círculo grande para mostrar el color seleccionado
 const CurrentColorCircle = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: ${({ color }) => color};
   border: 3px solid #bbb;
-  margin-right: 0.7rem;
+  margin-right: 0.56rem;
   box-shadow: 0 0 0 2px #fff, 0 2px 8px rgba(0,0,0,0.07);
   display: flex;
   align-items: center;
@@ -121,20 +121,20 @@ const ToolButtonsRow = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 `;
 
 // Dropdown para el menú de tres puntos
 const DropdownMenu = styled.div`
   position: absolute;
-  top: 2.5rem;
+  top: 2rem;
   left: 0;
-  min-width: 207px;
+  min-width: 168px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.13);
   z-index: 100;
-  padding: 0.3rem 0;
+  padding: 0.24rem 0;
   display: flex;
   flex-direction: column;
   animation: fadeIn 0.18s;
@@ -147,8 +147,8 @@ const DropdownItem = styled.button`
   background: none;
   border: none;
   text-align: left;
-  padding: 0.5rem 1.2rem;
-  font-size: 1rem;
+  padding: 0.4rem 0.96rem;
+  font-size: 0.8rem;
   font-family: 'Nunito Sans', sans-serif;
   color: #222c36;
   cursor: pointer;
@@ -169,8 +169,8 @@ const MenuWrapper = styled.div`
 const ColorPaletteRow = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  max-width: 180px;
+  gap: 0.32rem;
+  max-width: 144px;
   justify-content: center;
 `;
 
@@ -242,7 +242,7 @@ function Toolbar({
             aria-label="Zoom"
             value={zoom}
             onChange={e => onZoomChange(Number(e.target.value))}
-            style={{ marginLeft: 8, fontSize: '1rem', borderRadius: 6 }}
+            style={{ marginLeft: 6, fontSize: '0.8rem', borderRadius: 5 }}
           >
             {[10, 25, 50, 75, 90, 100, 110, 125, 150, 175, 200].map(z => (
               <option key={z} value={z}>{z}%</option>
@@ -306,9 +306,9 @@ function Toolbar({
               title={`Grosor ${t}`}
               active={thickness===t}
               onClick={()=>onThicknessChange(t)}
-              style={{padding: 0, width: 32, height: 32, justifyContent: 'center'}}
+              style={{padding: 0, width: 26, height: 26, justifyContent: 'center'}}
             >
-              <div style={{width: 24, height: t, background: ICON_COLOR, borderRadius: 4}} />
+              <div style={{width: 19, height: t, background: ICON_COLOR, borderRadius: 3}} />
             </ToolButton>
           ))}
         </ToolButtonsRow>
@@ -332,7 +332,7 @@ function Toolbar({
           </ColorPaletteRow>
           <ToolButton
             title="Seleccionar color"
-            style={{ padding: 0, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ padding: 0, width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onClick={handleCustomColor}
           >
             <FontAwesomeIcon icon={faPalette} style={{ color: ICON_COLOR }} />
@@ -358,7 +358,7 @@ function Toolbar({
             aria-label="Font size"
             value={fontSize}
             onChange={e => onFontSizeChange(Number(e.target.value))}
-            style={{ marginLeft: 8, fontSize: '1rem', borderRadius: 6 }}
+            style={{ marginLeft: 6, fontSize: '0.8rem', borderRadius: 5 }}
           >
             {FONT_SIZES.map(size => (
               <option key={size} value={size}>{size}px</option>
