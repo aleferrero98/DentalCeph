@@ -221,9 +221,11 @@ function Toolbar({
               <DropdownMenu>
                 <DropdownItem onClick={() => { setMenuOpen(false); onOpen(); }}>
                   Abrir imagen
+                  <FontAwesomeIcon icon={faFolderOpen} style={{ color: ICON_COLOR, marginLeft: '8px' }} />
                 </DropdownItem>
                 <DropdownItem onClick={() => { setMenuOpen(false); onDownload(); }}>
                   Descargar imagen
+                  <FontAwesomeIcon icon={faDownload} style={{ color: ICON_COLOR, marginLeft: '8px' }} />
                 </DropdownItem>
                 <DropdownItem onClick={() => { setMenuOpen(false); setShowTour(true); }}>
                   Descubrir funciones

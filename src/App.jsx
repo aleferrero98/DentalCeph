@@ -89,7 +89,7 @@ function App() {
       modal.style.transform = 'translate(-50%, -50%)';
       modal.style.zIndex = '1000';
       modal.style.textAlign = 'center';
-      modal.style.width = '500px';
+      modal.style.width = '620px';
       modal.style.minWidth = '300px';
       modal.style.maxWidth = '90%';
 
@@ -108,6 +108,7 @@ function App() {
 
       const message = document.createElement('p');
       message.textContent = 'El formato PDF no está soportado actualmente. Por favor, convierta su archivo a un formato compatible (PNG, JPG o WebP) utilizando un servicio externo.';
+      message.style.fontFamily = "'Nunito Sans', sans-serif";
 
       const convertBtn = document.createElement('button');
       convertBtn.textContent = 'Convertir a PNG';
@@ -118,6 +119,7 @@ function App() {
       convertBtn.style.borderRadius = '5px';
       convertBtn.style.cursor = 'pointer';
       convertBtn.style.marginRight = '10px';
+      convertBtn.style.fontFamily = "'Nunito Sans', sans-serif";
       convertBtn.onclick = () => window.open('https://convertio.co/es/pdf-png/', '_blank');
 
       const closeBtn = document.createElement('button');
@@ -128,6 +130,7 @@ function App() {
       closeBtn.style.padding = '10px 20px';
       closeBtn.style.borderRadius = '5px';
       closeBtn.style.cursor = 'pointer';
+      closeBtn.style.fontFamily = "'Nunito Sans', sans-serif";
       closeBtn.onclick = () => {
         document.body.removeChild(overlay);
         document.body.removeChild(modal);

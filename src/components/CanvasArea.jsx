@@ -39,13 +39,13 @@ const WelcomeContainer = styled.div`
 `;
 
 const HomeImage = styled.img`
-  width: 500px;
+  width: 400px;
   height: auto;
 `;
 
 const HelpText = styled.div`
   color: #888;
-  font-size: 1.2rem;
+  font-size: 0.96rem;
   font-family: 'Nunito Sans', sans-serif;
   text-align: center;
 `;
