@@ -238,16 +238,18 @@ function Toolbar({
               </DropdownMenu>
             )}
           </MenuWrapper>
-          <select
-            aria-label="Zoom"
-            value={zoom}
-            onChange={e => onZoomChange(Number(e.target.value))}
-            style={{ marginLeft: 6, fontSize: '0.8rem', borderRadius: 5 }}
-          >
-            {[10, 25, 50, 75, 90, 100, 110, 125, 150, 175, 200].map(z => (
-              <option key={z} value={z}>{z}%</option>
-            ))}
-          </select>
+          <div title="Zoom">
+            <select
+              aria-label="Zoom"
+              value={zoom}
+              onChange={e => onZoomChange(Number(e.target.value))}
+              style={{ marginLeft: 6, fontSize: '0.8rem', borderRadius: 5 }}
+            >
+              {[10, 25, 50, 75, 90, 100, 110, 125, 150, 175, 200].map(z => (
+                <option key={z} value={z}>{z}%</option>
+              ))}
+            </select>
+          </div>
         </ToolButtonsRow>
       </ToolGroup>
 
@@ -263,7 +265,7 @@ function Toolbar({
           <ToolButton title="Descargar imagen" onClick={onDownload} id="download-image-button">
             <FontAwesomeIcon icon={faDownload} style={{ color: ICON_COLOR }} />
           </ToolButton>
-          <ToolButton title="Borrar el contenido de la imagen" onClick={onDelete} id="delete-content-button">
+          <ToolButton title="Eliminar lo editado" onClick={onDelete} id="delete-content-button">
             <FontAwesomeIcon icon={faTrash} style={{ color: ICON_COLOR }} />
           </ToolButton>
           <ToolButton title="Deshacer cambios" onClick={onUndo} id="undo-button">
