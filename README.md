@@ -17,6 +17,9 @@ DentalCeph is a web application for cephalometric analysis, inspired by Windows 
 - Calculate angles between lines (in degrees)
 - Calculate Jarabak percentage (ratio of two line lengths)
 
+## Try the App
+You can try DentalCeph online at: [https://dentalceph-cba.web.app/](https://dentalceph-cba.web.app/)
+
 ## Tech Stack
 - React (Vite)
 - styled-components for styling
