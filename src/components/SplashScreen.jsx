@@ -42,7 +42,7 @@ const AppName = styled.div`
 
 const SplashScreen = () => (
   <SplashOverlay>
-    <Icon src="/dental-ceph.png" alt="DentalCeph" draggable={false} />
+    <Icon src="dental-ceph.png" alt="DentalCeph" draggable={false} />
     <AppName>DentalCeph</AppName>
   </SplashOverlay>
 );

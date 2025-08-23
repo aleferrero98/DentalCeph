@@ -810,7 +810,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       {!image && !pdf && (
         <WelcomeContainer>
           {showBanner && (
-            <HomeImage src="/home-image.png" alt="DentalCeph home image" onError={() => setShowBanner(false)} />
+            <HomeImage src="home-image.png" alt="DentalCeph home image" onError={() => setShowBanner(false)} />
           )}
           <HelpText>
             🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG, JPG o WebP! 🚀<br/>
