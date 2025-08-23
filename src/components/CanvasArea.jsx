@@ -31,11 +31,23 @@ const PdfPreview = styled.iframe`
   background: #fff;
 `;
 
+const WelcomeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 150px;
+`;
+
+const HomeImage = styled.img`
+  width: 400px;
+  height: auto;
+`;
+
 const HelpText = styled.div`
   color: #888;
-  font-size: 1.2rem;
+  font-size: 0.96rem;
+  font-family: 'Nunito Sans', sans-serif;
   text-align: center;
-  padding: 2rem;
 `;
 
 const FloatingInput = styled.input`
@@ -120,6 +132,8 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
 
   // Get image size for correct scaling
   const [imgDims, setImgDims] = useState({ width: 0, height: 0 });
+
+  const [showBanner, setShowBanner] = useState(true);
 
   // Update image dimensions on load
   const handleImgLoad = (e) => {
@@ -503,7 +517,7 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
     };
   };
 
-  // Export as PNG/JPG/JPEG/PDF (original size, no margins)
+  // Export as PNG/JPG/JPEG/WEBP (original size, no margins)
   const exportAs = async (format = 'png') => {
     if (!image) return;
     // Create a temp canvas with original image size
@@ -545,9 +559,22 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       ctx.fillText(t.text, t.x, t.y);
       ctx.restore();
     });
-    // Save as requested format (png, jpg, jpeg)
-    const mime = format === 'jpg' || format === 'jpeg' ? 'image/jpeg' : 'image/png';
-    const ext = format === 'jpg' ? 'jpg' : format === 'jpeg' ? 'jpeg' : 'png';
+    // Save as requested format (png, jpg, jpeg, webp)
+    let mime, ext;
+    switch(format.toLowerCase()) {
+      case 'jpg':
+      case 'jpeg':
+        mime = 'image/jpeg';
+        ext = 'jpg';
+        break;
+      case 'webp':
+        mime = 'image/webp';
+        ext = 'webp';
+        break;
+      default:
+        mime = 'image/png';
+        ext = 'png';
+    }
     const dataUrl = tempCanvas.toDataURL(mime);
     // File System Access API
     if (window.showSaveFilePicker) {
@@ -781,10 +808,15 @@ const CanvasArea = forwardRef(function CanvasArea({ image, pdf, onImageLoad, zoo
       style={{ cursor: image && !pdf ? (activeTool === 'point' ? 'crosshair' : activeTool === 'line' ? 'pointer' : activeTool === 'text' ? 'text' : 'default') : 'default' }}
     >
       {!image && !pdf && (
-        <HelpText>
-          🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG o JPG! 🚀<br/>
-          🛠️ Usa la barra de herramientas superior para seleccionar colores 🎨 y herramientas ✏️
-        </HelpText>
+        <WelcomeContainer>
+          {showBanner && (
+            <HomeImage src="home-image.png" alt="DentalCeph home image" onError={() => setShowBanner(false)} />
+          )}
+          <HelpText>
+            🩻 Abre una imagen para comenzar a trabajar sobre ella. ¡Se aceptan los formatos PNG, JPG o WebP! 🚀<br/>
+            🛠️ Usa la barra de herramientas superior para seleccionar colores 🎨 y herramientas ✏️
+          </HelpText>
+        </WelcomeContainer>
       )}
       {image && (
         <>
